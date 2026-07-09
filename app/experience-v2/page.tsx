@@ -1,0 +1,27 @@
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { ArchitectureSection } from "@/components/sections/architecture-section";
+import { AuditSection } from "@/components/sections/audit-section";
+import { CapabilityGridSection } from "@/components/sections/capability-grid-section";
+import { CtaSection } from "@/components/sections/cta-section";
+import { DiscoveryJourneySection } from "@/components/sections/discovery-journey-section";
+import { InteractiveHero } from "@/components/sections/interactive-hero";
+import { ProcessSection } from "@/components/sections/process-section";
+import { ToolFlowSection } from "@/components/sections/tool-flow-section";
+
+export default function ExperienceV2Page() {
+  return (
+    <main className="min-h-screen overflow-hidden">
+      <SiteHeader />
+      <InteractiveHero />
+      <ArchitectureSection />
+      <CapabilityGridSection />
+      <ToolFlowSection />
+      <ProcessSection />
+      <AuditSection />
+      <DiscoveryJourneySection />
+      <CtaSection />
+      <SiteFooter />
+    </main>
+  );
+}
