@@ -34,13 +34,28 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 34rem),
-    radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.12), transparent 30rem),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.12), rgba(2, 6, 23, 1) 52rem),
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 34rem),
+    radial-gradient(circle at top right, rgba(94, 234, 212, 0.12), transparent 32rem),
+    radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.1), transparent 30rem),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  pointer-events: none;
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
 }
 
 a {
@@ -60,7 +75,13 @@ a {
 
 .glass-panel {
   border: 1px solid rgba(148, 163, 184, 0.18);
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.84), rgba(2, 6, 23, 0.72));
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.72));
   box-shadow: 0 24px 80px rgba(2, 6, 23, 0.45);
   backdrop-filter: blur(18px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glass-panel {
+    transition: border-color 250ms ease, transform 250ms ease;
+  }
 }
