@@ -6,34 +6,45 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://nuvrixa.com"),
   title: {
-    default: "Nuvrixa | AI Automation for Modern Businesses",
+    default: "Nuvrixa | Intelligent AI Automation Operating Systems",
     template: "%s | Nuvrixa",
   },
   description:
-    "Nuvrixa helps businesses identify automation opportunities, streamline workflows, and prepare for practical AI implementation.",
+    "Nuvrixa designs premium AI automation operating systems for modern service businesses: workflow architecture, integrations, dashboards, and client experience systems.",
   keywords: [
     "Nuvrixa",
     "AI automation",
     "business automation",
     "AI audit",
     "workflow automation",
+    "AI operating system",
+    "automation consultancy",
     "South Africa AI consulting",
   ],
   authors: [{ name: "Nuvrixa" }],
   creator: "Nuvrixa",
   openGraph: {
-    title: "Nuvrixa | AI Automation for Modern Businesses",
+    title: "Nuvrixa | Intelligent AI Automation Operating Systems",
     description:
-      "Discover practical AI and automation opportunities for your business with Nuvrixa.",
+      "Transform scattered operations into connected intelligent workflows with Nuvrixa.",
     url: "https://nuvrixa.com",
     siteName: "Nuvrixa",
     type: "website",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Nuvrixa intelligent AI automation operating systems preview",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nuvrixa | AI Automation for Modern Businesses",
+    title: "Nuvrixa | Intelligent AI Automation Operating Systems",
     description:
-      "Practical AI automation audits and workflows for growing businesses.",
+      "Premium AI automation consultancy for connected operations, dashboards and client journeys.",
+    images: ["/og.png"],
   },
 };
 

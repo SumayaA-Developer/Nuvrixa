@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { AuditRequestButton } from "@/components/conversion/audit-request-modal";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { auditItems } from "@/data/site-content";
@@ -7,18 +7,18 @@ export function AuditSection() {
   return (
     <section id="audit" className="py-24 sm:py-32">
       <Container>
-        <div className="glass-panel grid gap-10 rounded-[2.5rem] p-6 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:p-14">
+        <div className="glass-panel neon-border grid gap-10 rounded-[2.5rem] p-6 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:p-14">
           <div>
-            <Eyebrow>AI Audit</Eyebrow>
+            <Eyebrow>AI audit</Eyebrow>
             <h2 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
-              Your Discovery Session becomes the starting point for a practical automation roadmap.
+              Your discovery session becomes a practical automation roadmap.
             </h2>
             <p className="mt-5 leading-8 text-slate-300">
-              Phase 2 sets the visual language for this offer. The next phase will connect the booking flow, confirmation copy, and HubSpot-ready lead capture.
+              We turn the conversation into a clear build sequence: what to automate first, what to integrate, what to leave human and how to measure the result.
             </p>
-            <Button href="mailto:hello@nuvrixa.com?subject=Nuvrixa%20Discovery%20Session" className="mt-8">
-              Start with a Discovery Session
-            </Button>
+            <AuditRequestButton className="mt-8">
+              Book AI Systems Audit
+            </AuditRequestButton>
           </div>
           <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6">
             <p className="text-sm uppercase tracking-[0.28em] text-cyan-200">Included in the audit</p>

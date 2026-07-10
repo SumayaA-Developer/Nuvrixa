@@ -1,58 +1,51 @@
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { NuvrixaOsVisual } from "@/components/visuals/nuvrixa-os-visual";
+import { EnergyBackdrop } from "@/components/visuals/section-visuals";
+import { AuditRequestButton } from "@/components/conversion/audit-request-modal";
 
 export function HeroSection() {
   return (
-    <section id="top" className="relative overflow-hidden pb-24 pt-20 sm:pt-28 lg:pb-32">
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-cyan-300/12 blur-3xl" />
-      <Container className="relative grid items-center gap-14 lg:grid-cols-[1.06fr_0.94fr]">
+    <section id="top" className="relative overflow-hidden pb-20 pt-12 sm:pt-24 lg:pb-28">
+      <EnergyBackdrop />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/92 to-slate-950/54" />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-cyan-300/12 blur-3xl" />
+      <div className="pointer-events-none absolute right-0 top-24 h-[32rem] w-[32rem] rounded-full bg-violet-600/16 blur-3xl" />
+      <Container className="relative grid items-center gap-14 lg:grid-cols-[1.02fr_0.98fr]">
         <div>
-          <Eyebrow>AI automation consulting</Eyebrow>
-          <h1 className="mt-6 max-w-5xl text-5xl font-semibold tracking-[-0.06em] text-white sm:text-6xl lg:text-7xl xl:text-8xl">
-            Turn scattered business processes into intelligent workflows.
+          <Eyebrow>AI automation consultancy</Eyebrow>
+          <h1 className="mt-5 max-w-5xl text-4xl font-semibold tracking-[-0.03em] text-white sm:mt-6 sm:text-6xl lg:text-6xl xl:text-7xl">
+            Turn business chaos into one <span className="text-gradient-brand">intelligent system.</span>
           </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300">
-            Nuvrixa helps businesses audit their operations, identify AI automation opportunities, and connect their existing tools into smoother client and internal workflows.
+          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:mt-7 sm:text-lg sm:leading-8">
+            Nuvrixa designs premium AI-powered systems, portals and automations that streamline operations, empower your team and drive visible business outcomes.
           </p>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <Button href="mailto:hello@nuvrixa.com?subject=Nuvrixa%20Discovery%20Session">
-              Book a Discovery Session
-            </Button>
-            <Button href="#audit" variant="secondary">
-              See the AI Audit
+          <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
+            <AuditRequestButton>
+              Book AI Systems Audit
+            </AuditRequestButton>
+            <Button href="#architecture" variant="secondary">
+              Explore the System
             </Button>
           </div>
-          <div className="mt-10 grid max-w-2xl grid-cols-3 gap-4 border-t border-white/10 pt-8 text-sm text-slate-400">
-            <div><strong className="block text-2xl text-white">0</strong>Backend required</div>
-            <div><strong className="block text-2xl text-white">4</strong>Step audit flow</div>
-            <div><strong className="block text-2xl text-white">AI</strong>Practical, not hype</div>
+          <div className="mt-8 grid max-w-2xl grid-cols-1 gap-3 border-t border-white/10 pt-6 text-sm text-slate-400 sm:mt-10 sm:grid-cols-3 sm:pt-8">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <strong className="block text-2xl text-white">Zero</strong> Tool-stack rebuild
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <strong className="block text-2xl text-white">12+</strong> Tool pathways
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <strong className="block text-2xl text-white">AI</strong> Governed by humans
+            </div>
           </div>
         </div>
 
-        <div className="glass-panel relative rounded-[2.5rem] p-4 sm:p-6">
-          <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-5">
-              <p className="text-sm uppercase tracking-[0.3em] text-cyan-200">Workflow Map</p>
-              <span className="rounded-full bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">Live Blueprint</span>
-            </div>
-            <div className="mt-8 space-y-4">
-              {[
-                "Enquiry captured",
-                "Discovery session booked",
-                "Confirmation sent",
-                "Audit workflow prepared",
-                "Follow-up system triggered",
-              ].map((item, index) => (
-                <div key={item} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-300/10 text-sm font-semibold text-cyan-100">
-                    {index + 1}
-                  </span>
-                  <span className="text-sm text-slate-200">{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="relative">
+          <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-cyan-300/18 via-violet-500/16 to-blue-500/12 blur-2xl" />
+          <NuvrixaOsVisual />
         </div>
       </Container>
     </section>

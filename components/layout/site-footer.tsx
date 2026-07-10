@@ -1,11 +1,28 @@
 import { Container } from "@/components/ui/container";
+import { navItems } from "@/data/site-content";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/10 py-10">
-      <Container className="flex flex-col gap-4 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-        <p>© {new Date().getFullYear()} Nuvrixa. AI automation for practical business improvement.</p>
-        <div className="flex gap-5">
+    <footer className="border-t border-white/10 py-12">
+      <Container className="grid gap-8 text-sm text-slate-400 lg:grid-cols-[1fr_auto] lg:items-start">
+        <div>
+          <p className="inline-flex items-center gap-3 text-lg font-semibold tracking-[0.2em] text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 via-blue-500 to-cyan-300 text-base font-black tracking-[-0.08em] text-white shadow-[0_0_28px_rgba(34,211,238,0.35)]">
+              N
+            </span>
+            <span><span className="text-cyan-200">NUV</span>RIXA</span>
+          </p>
+          <p className="mt-4 max-w-xl leading-7">
+            AI automation consultancy for connected operating systems, client workflows and premium business visibility.
+          </p>
+          <p className="mt-6">Copyright {new Date().getFullYear()} Nuvrixa. All rights reserved.</p>
+        </div>
+        <div className="flex flex-wrap gap-5 lg:justify-end">
+          {navItems.map((item) => (
+            <a key={item.href} href={item.href} className="transition hover:text-white">
+              {item.label}
+            </a>
+          ))}
           <a href="mailto:hello@nuvrixa.com" className="transition hover:text-white">
             hello@nuvrixa.com
           </a>
