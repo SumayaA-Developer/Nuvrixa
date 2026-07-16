@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/container";
 import { navItems } from "@/data/site-content";
+import { siteConfig } from "@/lib/site";
 
 export function SiteFooter() {
   return (
@@ -15,7 +16,7 @@ export function SiteFooter() {
           <p className="mt-4 max-w-xl leading-7">
             AI automation consultancy for connected operating systems, client workflows and premium business visibility.
           </p>
-          <p className="mt-6">Copyright {new Date().getFullYear()} Nuvrixa. All rights reserved.</p>
+          <p className="mt-6">Copyright {new Date().getFullYear()} {siteConfig.legalName}. All rights reserved.</p>
         </div>
         <div className="flex flex-wrap gap-5 lg:justify-end">
           {navItems.map((item) => (
@@ -23,8 +24,13 @@ export function SiteFooter() {
               {item.label}
             </a>
           ))}
-          <a href="mailto:hello@nuvrixa.com" className="transition hover:text-white">
-            hello@nuvrixa.com
+          {siteConfig.legalLinks.map((item) => (
+            <a key={item.href} href={item.href} className="transition hover:text-white">
+              {item.label}
+            </a>
+          ))}
+          <a href={`mailto:${siteConfig.email}`} className="transition hover:text-white">
+            {siteConfig.email}
           </a>
           <a href="#top" className="transition hover:text-white">
             Back to top

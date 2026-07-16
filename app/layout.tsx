@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { integrationsConfig } from "@/lib/integrations";
+import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nuvrixa.com"),
+  metadataBase: new URL(siteConfig.domain),
   title: {
     default: "Nuvrixa | Intelligent AI Automation Operating Systems",
     template: "%s | Nuvrixa",
   },
-  description:
-    "Nuvrixa designs premium AI automation operating systems for modern service businesses: workflow architecture, integrations, dashboards, and client experience systems.",
+  description: siteConfig.description,
   keywords: [
     "Nuvrixa",
     "AI automation",
@@ -27,7 +29,7 @@ export const metadata: Metadata = {
     title: "Nuvrixa | Intelligent AI Automation Operating Systems",
     description:
       "Transform scattered operations into connected intelligent workflows with Nuvrixa.",
-    url: "https://nuvrixa.com",
+    url: siteConfig.domain,
     siteName: "Nuvrixa",
     type: "website",
     images: [
@@ -55,7 +57,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {integrationsConfig.hubSpotTrackingId ? (
+          <Script
+            id="hs-script-loader"
+            src={`//js.hs-scripts.com/${integrationsConfig.hubSpotTrackingId}.js`}
+            strategy="afterInteractive"
+          />
+        ) : null}
+      </body>
     </html>
   );
 }

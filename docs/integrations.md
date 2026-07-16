@@ -27,6 +27,7 @@ Add these public environment variables in Vercel once the project exists:
 NEXT_PUBLIC_HUBSPOT_PORTAL_ID=148852199
 NEXT_PUBLIC_HUBSPOT_REGION=eu1
 NEXT_PUBLIC_HUBSPOT_AUDIT_FORM_ID=
+NEXT_PUBLIC_HUBSPOT_TRACKING_ID=
 NEXT_PUBLIC_CAL_BOOKING_URL=
 NEXT_PUBLIC_GOOGLE_DRIVE_URL=
 ```
@@ -48,6 +49,14 @@ NEXT_PUBLIC_HUBSPOT_AUDIT_FORM_ID
 ```
 
 When that value is present, the audit modal embeds the HubSpot form and submissions flow directly into HubSpot.
+
+Add the HubSpot tracking code ID to:
+
+```text
+NEXT_PUBLIC_HUBSPOT_TRACKING_ID
+```
+
+This loads the HubSpot tracking script globally.
 
 ## Cal.com
 

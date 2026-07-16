@@ -6,6 +6,7 @@ import { CalBookingPanel } from "@/components/conversion/cal-booking-panel";
 import { HubSpotAuditForm } from "@/components/conversion/hubspot-audit-form";
 import { cn } from "@/lib/utils";
 import { hasCalBooking, hasHubSpotAuditForm, integrationsConfig } from "@/lib/integrations";
+import { siteConfig } from "@/lib/site";
 
 type AuditRequest = {
   name: string;
@@ -79,7 +80,7 @@ function buildEmailBody(request: AuditRequest) {
 function auditMailto(request: AuditRequest) {
   const subject = encodeURIComponent(`Nuvrixa AI Systems Audit - ${request.company || request.name || "New request"}`);
   const body = encodeURIComponent(buildEmailBody(request));
-  return `mailto:hello@nuvrixa.com?subject=${subject}&body=${body}`;
+  return `mailto:${siteConfig.email}?subject=${subject}&body=${body}`;
 }
 
 export function AuditRequestButton({
@@ -302,9 +303,9 @@ export function AuditRequestModal() {
             <div className="mt-6 rounded-[1.5rem] border border-cyan-300/15 bg-cyan-300/[0.06] p-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-white">Frontend-only submission</p>
+                  <p className="text-sm font-semibold text-white">Launch-safe fallback</p>
                   <p className="mt-1 text-sm leading-6 text-slate-300">
-                    This prepares an email to Nuvrixa. No database, auth or backend has been added.
+                    This prepares an email to Nuvrixa if HubSpot or Cal.com details are not live yet.
                   </p>
                 </div>
                 <button
