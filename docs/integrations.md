@@ -24,6 +24,9 @@ team_ZYNoTZpTMpY1McOG6q14Vfve
 Add these public environment variables in Vercel once the project exists:
 
 ```text
+NEXT_PUBLIC_SITE_URL=https://nuvrixa.co.za
+NEXT_PUBLIC_CONTACT_EMAIL=hello@nuvrixa.co.za
+NEXT_PUBLIC_LEGAL_NAME=Nuvrixa Technologies (Pty) Ltd.
 NEXT_PUBLIC_HUBSPOT_PORTAL_ID=148852199
 NEXT_PUBLIC_HUBSPOT_REGION=eu1
 NEXT_PUBLIC_HUBSPOT_AUDIT_FORM_ID=

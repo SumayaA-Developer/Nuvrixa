@@ -39,7 +39,7 @@ export function LegalPage({ eyebrow, title, intro, sections }: LegalPageProps) {
           </div>
 
           <div className="mt-10 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-5 text-sm leading-7 text-cyan-50">
-            For questions about these terms, contact{" "}
+            For questions about this page, contact{" "}
             <a className="font-semibold underline decoration-cyan-200/40 underline-offset-4" href={`mailto:${siteConfig.email}`}>
               {siteConfig.email}
             </a>

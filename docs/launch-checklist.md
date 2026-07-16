@@ -4,7 +4,8 @@
 
 - Import `SumayaA-Developer/Nuvrixa` into Vercel.
 - Add production environment variables from `.env.example`.
-- Confirm the canonical domain and point DNS to Vercel.
+- Confirm `nuvrixa.co.za` as the canonical domain and point DNS to Vercel.
+- Confirm `hello@nuvrixa.co.za` is active for public enquiries.
 - Create or select the HubSpot audit form and add its form ID.
 - Confirm the Cal.com Free 30 Min Automation Audit booking URL is active.
 - Confirm the public contact email.
