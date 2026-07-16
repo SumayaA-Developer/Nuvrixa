@@ -6,7 +6,7 @@
 - Add production environment variables from `.env.example`.
 - Confirm the canonical domain and point DNS to Vercel.
 - Create or select the HubSpot audit form and add its form ID.
-- Create the Cal.com audit event and add its booking URL.
+- Confirm the Cal.com Free 30 Min Automation Audit booking URL is active.
 - Confirm the public contact email.
 - Review the Privacy Policy and Terms pages for legal accuracy.
 

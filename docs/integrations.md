@@ -28,7 +28,7 @@ NEXT_PUBLIC_HUBSPOT_PORTAL_ID=148852199
 NEXT_PUBLIC_HUBSPOT_REGION=eu1
 NEXT_PUBLIC_HUBSPOT_AUDIT_FORM_ID=
 NEXT_PUBLIC_HUBSPOT_TRACKING_ID=
-NEXT_PUBLIC_CAL_BOOKING_URL=
+NEXT_PUBLIC_CAL_BOOKING_URL=https://cal.com/nuvrixa-y3tgnz/free-ai-automation-discovery-session
 NEXT_PUBLIC_GOOGLE_DRIVE_URL=
 ```
 
@@ -60,13 +60,13 @@ This loads the HubSpot tracking script globally.
 
 ## Cal.com
 
-Create an event type for the AI Systems Audit and paste its public booking URL into:
+The Free 30 Min Automation Audit booking URL is:
 
 ```text
-NEXT_PUBLIC_CAL_BOOKING_URL
+https://cal.com/nuvrixa-y3tgnz/free-ai-automation-discovery-session
 ```
 
-After a HubSpot form submission or email fallback, the modal shows the Cal.com booking action.
+Set it in `NEXT_PUBLIC_CAL_BOOKING_URL` if you need to override the default later. After a HubSpot form submission or email fallback, the modal shows the Cal.com booking action.
 
 ## Google Workspace
 
