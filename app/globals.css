@@ -83,6 +83,10 @@ body::after {
   opacity: 0.55;
 }
 
+body > main > footer {
+  display: none;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -304,4 +308,9 @@ a {
   100% {
     transform: translateX(420%);
   }
+}
+
+/* The About page is intentionally not part of the public site navigation. */
+header nav a[href="/about"] {
+  display: none !important;
 }

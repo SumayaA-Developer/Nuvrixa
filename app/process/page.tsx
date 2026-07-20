@@ -1,5 +1,23 @@
-import { NuvrixaPage } from "@/components/nuvrixa/site-pages";
+/* eslint-disable @next/next/no-html-link-for-pages */
+import styles from "./process.module.css";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
-export default function ProcessPage() {
-  return <NuvrixaPage pageKey="process" />;
-}
+const steps=[
+ {n:"01",icon:"⌕",title:"Discover",tag:"We understand your business inside out.",copy:"We dive deep into your operations, challenges, goals and current systems to identify opportunities for automation and growth.",items:["Stakeholder interviews","Process & system assessment","Pain point identification","Opportunity mapping"]},
+ {n:"02",icon:"⌘",title:"Map",tag:"We map and analyse your processes.",copy:"We document your workflows and data flows to understand what’s working, what’s not and what can be improved.",items:["Process mapping","Workflow analysis","Data flow review","Gap & bottleneck analysis"]},
+ {n:"03",icon:"⌑",title:"Design",tag:"We design the right solution for you.",copy:"We create a tailored solution blueprint that aligns with your goals, tech stack and future scalability.",items:["Solution architecture","Automation design","Integration planning","User experience design"]},
+ {n:"04",icon:"</>",title:"Build",tag:"We build, integrate and bring it to life.",copy:"We develop and integrate your system using best practices, rigorous testing and secure configurations.",items:["System development","Integrations & automation","Testing & quality assurance","Deployment & training"]},
+ {n:"05",icon:"⌁",title:"Optimise",tag:"We optimise for long-term performance.",copy:"We continuously monitor, refine and improve your system to ensure it delivers maximum value over time.",items:["Performance monitoring","Process optimisation","Insights & reporting","Ongoing support"]},
+];
+const approach=[["♢","Business First","We focus on your business goals, not just technology."],["⌕","Data Informed","Every decision is backed by data and real insights."],["♧","Collaborative","You’re involved at every stage. We build together."],["♙","Secure & Compliant","Security, privacy and compliance are built in from day one."],["♢","Scalable By Design","Our solutions grow with your business."]];
+function Logo(){return <BrandLogo className={styles.logo}/>}
+function StairVisual(){return <div className={styles.visual} aria-label="Five step process rising toward a target"><div className={styles.rings}/><div className={styles.power}/>{["01","02","03","04","05"].map((n,i)=><div className={styles.stepBlock} style={{"--i":i} as React.CSSProperties} key={n}>{n}</div>)}<div className={styles.target}>◉<i>↗</i></div></div>}
+function StepCard({s,i}:{s:typeof steps[number],i:number}){return <article className={styles.stepCard}><div className={styles.number}>{s.n}<small>◆</small></div><div className={i%2?styles.purpleIcon:styles.cyanIcon}>{s.icon}</div><h3>{s.title}</h3><b>{s.tag}</b><p>{s.copy}</p><ul>{s.items.map(x=><li key={x}>✓ <span>{x}</span></li>)}</ul></article>}
+export default function ProcessPage(){return <main className={styles.page}>
+ <header className={styles.header}><a href="/"><Logo/></a><nav>{["Home","Solutions","Services","Process","Results"].map(x=><a className={x==="Process"?styles.active:""} href={x==="Home"?"/":`/${x.toLowerCase()}`} key={x}>{x}</a>)}</nav><a className={styles.audit} href="#audit">Book Free Automation Audit　→</a></header>
+ <section className={styles.hero}><div className={styles.copy}><span>OUR PROCESS</span><h1>A Clear Process.<br/><em>Powerful Outcomes.</em></h1><p>We follow a proven 5-step process to design, build and optimise AI-powered systems and automations that create real, measurable impact.</p><div className={styles.benefits}>{[["◎","Strategic & Structured","A proven process built for success."],["♧","Collaborative Approach","We work with you, not just for you."],["▥","Focused On Results","Every step is designed to deliver real value."]].map(x=><article key={x[1]}><i>{x[0]}</i><div><b>{x[1]}</b><span>{x[2]}</span></div></article>)}</div></div><StairVisual/></section>
+ <section className={styles.process}><div className={styles.heading}><h2>The 5-Step Nuvrixa Process</h2><p>From understanding your business to ongoing optimisation, we ensure every detail is covered.</p></div><div className={styles.steps}>{steps.map((s,i)=><StepCard s={s} i={i} key={s.n}/>)}</div><div className={styles.improve}><i>◌</i><div><h3>Continuous Improvement</h3><p>We don’t just deliver and disappear. We stay with you to refine, improve and scale.</p></div></div></section>
+ <section className={styles.approach}><h2>Our Approach</h2><div>{approach.map((x,i)=><article key={x[1]}><i className={i%2?styles.purpleText:styles.cyanText}>{x[0]}</i><h3>{x[1]}</h3><p>{x[2]}</p></article>)}</div></section>
+ <section className={styles.cta} id="audit"><div className={styles.calendar}><div/><i>◷</i></div><div><h2>Ready To Start Your <span>Transformation?</span></h2><p>Let’s discuss your business, identify opportunities and build a plan to automate, integrate and scale.</p><small>✓　30 Minutes　　✓　100% Free　　✓　No Obligation　　✓　Built Around Your Business</small></div><div><a className={styles.audit} href="/audit">Book My Free 30-Minute Audit　→</a><p>No credit card required.</p></div></section>
+ <div className={styles.note}>ⓘ　Every business is different. Our process is tailored to your unique needs, goals and industry.</div>
+ </main>}

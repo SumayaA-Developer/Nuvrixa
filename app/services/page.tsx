@@ -1,5 +1,26 @@
-import { NuvrixaPage } from "@/components/nuvrixa/site-pages";
+/* eslint-disable @next/next/no-html-link-for-pages */
+import styles from "./services.module.css";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
-export default function ServicesPage() {
-  return <NuvrixaPage pageKey="services" />;
-}
+const services=[
+ {icon:"♧",title:"AI Strategy & Consulting",copy:"We help you identify high-impact opportunities and build a clear roadmap for AI and automation.",items:["AI Opportunity Mapping","Use Case Prioritisation","Strategy & Roadmap","ROI & Feasibility Analysis"]},
+ {icon:"⌘",title:"Process Automation",copy:"We automate repetitive tasks and workflows across your business so your team can focus on what truly matters.",items:["Workflow Automation","Task Automation","Document Automation","Approval & Notification Flows"]},
+ {icon:"⌯",title:"System Integration",copy:"We connect your tools, apps and data to create one unified, efficient and intelligent ecosystem.",items:["API Integrations","Data Synchronisation","Custom Integrations","Third-Party Connectors"]},
+ {icon:"▤",title:"Data & AI Solutions",copy:"We turn your data into real insights and build smart AI solutions that drive better decisions.",items:["Data Pipeline Development","Dashboard & Reporting","AI Models & Predictive Analytics","Insight & Decision Intelligence"]},
+ {icon:"♙",title:"AI Agents & Chatbots",copy:"We build intelligent AI agents and chatbots that engage, support and convert – 24/7.",items:["Custom AI Chatbots","Internal AI Assistants","Lead Qualification Bots","Multi-Channel Deployment"]},
+ {icon:"▣",title:"Custom AI Solutions",copy:"We design and build custom AI solutions tailored to your unique business challenges.",items:["Custom AI Workflows","AI-Powered Applications","Computer Vision Solutions","NLP & Text Automation"]},
+ {icon:"☁",title:"Cloud & Infrastructure",copy:"We build secure, scalable and reliable cloud infrastructure that powers your systems.",items:["Cloud Architecture","DevOps & Automation","Database & Storage","Scalability & Security"]},
+ {icon:"♢",title:"Automation Support & Optimisation",copy:"We continuously monitor, optimise and improve your systems for maximum performance.",items:["Performance Monitoring","Process Optimisation","System Maintenance","Ongoing Support"]},
+];
+const process=[["⌕","1. Discover","Understand your business, challenges and goals."],["↗","2. Design","Design the right solution tailored to your needs."],["</>","3. Build","Build and integrate your solution with precision."],["♢","4. Deploy","Deploy, test and ensure everything works seamlessly."],["▥","5. Optimise","Continuously optimise and drive better results."]];
+function Logo(){return <BrandLogo className={styles.logo}/>}
+function ServiceCard({s,i}:{s:typeof services[number],i:number}){return <article className={`${styles.card} ${i%3===0||i%3===2?styles.cyan:styles.purple}`}><div className={styles.cardIcon}>{s.icon}</div><h3>{s.title}</h3><p>{s.copy}</p><ul>{s.items.map(x=><li key={x}>✓ <span>{x}</span></li>)}</ul></article>}
+function HeroVisual(){return <div className={styles.visual} aria-label="Nuvrixa service operating system"><div className={styles.gridLines}/><div className={styles.orbit}/><div className={styles.cube}><div>N</div></div><div className={styles.stack}>{[1,2,3].map(x=><i key={x}/>)}</div>{[["⚙","AUTOMATE","Eliminate manual work"],["↗","INTEGRATE","Connect your tools & data"],["▥","OPTIMISE","Improve processes and efficiency"],["♢","SCALE","Build for growth and innovation"]].map((x,i)=><article className={styles[`callout${i}`]} key={x[1]}><i>{x[0]}</i><div><b>{x[1]}</b><span>{x[2]}</span></div></article>)}</div>}
+export default function ServicesPage(){return <main className={styles.page}>
+ <header className={styles.header}><a href="/"><Logo/></a><nav>{["Home","Solutions","Services","Process","Results"].map(x=><a className={x==="Services"?styles.active:""} href={x==="Home"?"/":`/${x.toLowerCase()}`} key={x}>{x}</a>)}</nav><a className={styles.audit} href="#audit">Book Free Automation Audit　→</a></header>
+ <section className={styles.hero}><div className={styles.copy}><span>OUR SERVICES</span><h1>AI-Powered Services.<br/>Real <em>Business Impact.</em></h1><p>We design, build and optimise AI-powered systems and automations that eliminate manual work, streamline operations and drive measurable growth.</p><div className={styles.benefits}>{[["ϟ","Save Time","Automate repetitive tasks and workflows."],["◎","Reduce Costs","Cut operational costs and human errors."],["▥","Scale Faster","Build systems that grow as your business grows."]].map(x=><article key={x[1]}><i>{x[0]}</i><div><b>{x[1]}</b><span>{x[2]}</span></div></article>)}</div></div><HeroVisual/></section>
+ <section className={styles.services}><div className={styles.heading}><h2>End-to-End Services. Built Around <span>Your Business.</span></h2><p>From strategy to scale – we provide everything you need to transform the way you work.</p></div><div className={styles.cards}>{services.map((s,i)=><ServiceCard s={s} i={i} key={s.title}/>)}</div></section>
+ <section className={styles.process}><h2>Every Service Follows Our Proven Process</h2><div>{process.map((x,i)=><article key={x[1]}><i>{x[0]}</i>{i<4&&<b>⟶</b>}<h3>{x[1]}</h3><p>{x[2]}</p></article>)}</div></section>
+ <section className={styles.cta} id="audit"><div className={styles.calendar}><div/><i>◷</i></div><div><h2>Ready To Transform <span>Your Business?</span></h2><p>Book your free 30-minute Automation Audit and let’s identify high-impact opportunities for your business.</p><small>✓　30 Minutes　　✓　100% Free　　✓　No Obligation　　✓　Built Around Your Business</small></div><div><a className={styles.audit} href="/audit">Book My Free 30-Minute Audit　→</a><p>No credit card required.</p></div></section>
+ <section className={styles.tools}><small>We work with best-in-class tools and technologies</small><div><b>〽 Make</b><b>⌘ n8n</b><b>✣ Zapier</b><b>HubSp<span>o</span>t</b><b>◆ Airtable</b><b>◆ ClickUp</b><b>◉ Google Cloud</b><b>aws</b><b>◎ OpenAI</b></div></section>
+ </main>}

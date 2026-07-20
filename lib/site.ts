@@ -14,10 +14,7 @@ export const siteConfig = {
     { label: "Blueprint", href: "#blueprint" },
   ],
   legalLinks: [
-    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookie-policy" },
-    { label: "POPIA Privacy Notice", href: "/popia" },
-    { label: "PAIA Manual", href: "/paia" },
   ],
 } as const;

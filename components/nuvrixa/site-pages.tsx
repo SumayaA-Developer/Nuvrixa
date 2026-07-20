@@ -41,7 +41,6 @@ const nav = [
   ["Services", "/services"],
   ["Process", "/process"],
   ["Results", "/results"],
-  ["About", "/about"],
 ] as const;
 
 const industries: Card[] = [

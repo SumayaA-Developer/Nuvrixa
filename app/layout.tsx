@@ -4,6 +4,8 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { integrationsConfig } from "@/lib/integrations";
 import { siteConfig } from "@/lib/site";
+import { AuditLinkRouter } from "@/components/conversion/audit-link-router";
+import { GlobalFooter } from "@/components/layout/global-footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -58,7 +60,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
+        <AuditLinkRouter />
         {children}
+        <GlobalFooter />
         {integrationsConfig.hubSpotTrackingId ? (
           <Script
             id="hs-script-loader"
