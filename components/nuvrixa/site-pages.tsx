@@ -1,7 +1,5 @@
 import Link from "next/link";
 
-import { integrationsConfig } from "@/lib/integrations";
-
 type PageKey = "home" | "solutions" | "services" | "process" | "results" | "about";
 
 type Card = {
@@ -297,7 +295,7 @@ function SiteNav({ active }: { active: PageKey }) {
           );
         })}
       </nav>
-      <a href={integrationsConfig.calBookingUrl} className="rounded-lg bg-gradient-to-r from-blue-600 to-fuchsia-600 px-7 py-4 text-base font-semibold shadow-[0_0_35px_rgba(124,58,237,0.38)]">
+      <a href="/audit" className="rounded-lg bg-gradient-to-r from-blue-600 to-fuchsia-600 px-7 py-4 text-base font-semibold shadow-[0_0_35px_rgba(124,58,237,0.38)]">
         Book Free Automation Audit <span className="ml-2">-&gt;</span>
       </a>
     </header>
@@ -320,7 +318,7 @@ function Hero({ page }: { page: PageContent }) {
         <p className="mt-7 max-w-[650px] text-xl leading-9 text-slate-200/90">{page.body}</p>
         {page.key === "home" ? (
           <div className="mt-10 flex flex-wrap gap-4">
-            <a href={integrationsConfig.calBookingUrl} className="rounded-lg bg-gradient-to-r from-blue-600 to-fuchsia-600 px-8 py-5 text-lg font-semibold shadow-[0_0_35px_rgba(124,58,237,0.38)]">Book Your Free Automation Audit -&gt;</a>
+            <a href="/audit" className="rounded-lg bg-gradient-to-r from-blue-600 to-fuchsia-600 px-8 py-5 text-lg font-semibold shadow-[0_0_35px_rgba(124,58,237,0.38)]">Book Your Free Automation Audit -&gt;</a>
             <Link href="/solutions" className="rounded-lg border border-blue-400/40 px-8 py-5 text-lg font-semibold">Explore Solutions o</Link>
           </div>
         ) : null}
@@ -546,7 +544,7 @@ function Cta({ page }: { page: PageContent }) {
         </div>
       </div>
       <div className="text-center">
-        <a href={integrationsConfig.calBookingUrl} className="inline-flex rounded-lg bg-gradient-to-r from-blue-600 to-fuchsia-600 px-10 py-5 text-lg font-semibold shadow-[0_0_35px_rgba(124,58,237,0.38)]">Book My Free 30-Minute Audit -&gt;</a>
+        <a href="/audit" className="inline-flex rounded-lg bg-gradient-to-r from-blue-600 to-fuchsia-600 px-10 py-5 text-lg font-semibold shadow-[0_0_35px_rgba(124,58,237,0.38)]">Book My Free 30-Minute Audit -&gt;</a>
         <p className="mt-5 text-sm text-slate-400">No credit card required.</p>
       </div>
     </section>

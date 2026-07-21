@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { integrationsConfig } from "@/lib/integrations";
 import styles from "./audit.module.css";
 
 export function AuditForm(){
  const [status,setStatus]=useState<"idle"|"saving"|"error">("idle");
+ const [bookingUrl,setBookingUrl]=useState<string | null>(null);
  async function submit(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault(); setStatus("saving");
   const form=new FormData(e.currentTarget); const entries:Record<string,FormDataEntryValue|FormDataEntryValue[]>=Object.fromEntries(form.entries());
@@ -13,9 +15,18 @@ export function AuditForm(){
   try{
    const response=await fetch("/api/audit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(entries)});
    if(!response.ok) throw new Error("HubSpot submission failed");
-   const cal=new URL(integrationsConfig.calBookingUrl); if(entries.email) cal.searchParams.set("email",String(entries.email)); if(entries.firstname) cal.searchParams.set("name",`${entries.firstname} ${entries.lastname||""}`.trim()); window.location.href=cal.toString();
+   const cal=new URL(integrationsConfig.calBookingUrl);
+   cal.searchParams.set("embed","1");
+   if(entries.email) cal.searchParams.set("email",String(entries.email));
+   if(entries.firstname) cal.searchParams.set("name",`${entries.firstname} ${entries.lastname||""}`.trim());
+   setBookingUrl(cal.toString());
   }catch{setStatus("error")}
  }
+ if(bookingUrl) return <section className={styles.booking} aria-labelledby="booking-title">
+  <div className={styles.bookingHeader}><div><span>DETAILS SAVED</span><h2 id="booking-title">Choose Your 30-Minute Audit Time</h2><p>Your details are securely saved. Complete your booking below without leaving Nuvrixa.</p></div><Link href="/">Return Home</Link></div>
+  <iframe title="Book your free Nuvrixa automation audit" src={bookingUrl} loading="eager" allow="payment"/>
+  <div className={styles.bookingFooter}><p>Finished booking? Your confirmation will also be sent by Cal.com.</p><Link href="/">← Return to Nuvrixa Home</Link></div>
+ </section>;
  return <form className={styles.form} onSubmit={submit}>
   <h2>Tell Us About Your Business</h2><p>This helps us understand your needs and prepare for a productive session.</p>
   <div className={styles.steps}>{["Your Business","Your Needs","Challenges","Contact Details"].map((x,i)=><div key={x}><i>{i+1}</i><span>{x}</span></div>)}</div>
