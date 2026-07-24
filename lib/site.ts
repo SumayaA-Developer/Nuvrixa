@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Nuvrixa",
-  domain: process.env.NEXT_PUBLIC_SITE_URL || "https://nuvrixa.co.za",
+  domain: process.env.NEXT_PUBLIC_SITE_URL || "https://www.nuvrixa.co.za",
   email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@nuvrixa.co.za",
   legalName: process.env.NEXT_PUBLIC_LEGAL_NAME || "Nuvrixa Technologies (Pty) Ltd.",
   description:
