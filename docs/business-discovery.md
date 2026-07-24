@@ -2,6 +2,8 @@
 
 ## Storage and CRM mapping
 
+The client journey is intentionally limited to seven focused steps and is designed for an 8–12 minute completion time. It captures the minimum information needed to prepare a useful prototype: business context, goals and pain points, one priority workflow, current tools and data controls, prototype requirements, and realistic budget/timing.
+
 `POST /api/business-discovery` validates all required sections server-side, upserts the HubSpot contact by email, and stores the complete structured assessment as associated HubSpot notes. Every accepted response receives a server-generated `NUV-YYYYMMDD-XXXXXXXX` reference and server-generated ISO timestamp. Core contact/company details map to the contact; the full assessment remains in notes.
 
 Each browser draft receives a UUID submission key. Successful submissions are cached for 24 hours in a warm server instance so immediate retries return the same reference instead of creating another note. The route also includes a honeypot, a one-megabyte request limit, email validation and a best-effort limit of five attempts per IP address in ten minutes. These in-memory controls are useful protection but are not durable across every serverless instance; add a shared rate-limit/idempotency store if submission volume or abuse risk increases.

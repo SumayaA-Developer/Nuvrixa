@@ -37,7 +37,7 @@ function cleanCaches() {
   }
 }
 function validationError(answers: Answers) {
-  const missing = discoverySections.slice(0, 15).flatMap((section) => requiredKeysForSection(section)).filter((key) => !valuePresent(answers[key]));
+  const missing = discoverySections.slice(0, -1).flatMap((section) => requiredKeysForSection(section)).filter((key) => !valuePresent(answers[key]));
   const processes = Array.isArray(answers.processes) ? answers.processes : [];
   if (!processes.length || processes.some((process) => typeof process !== "object" || !cleanText(process.name) || !cleanText(process.steps))) missing.push("process details");
   if (missing.length) return `Required discovery information is missing: ${[...new Set(missing)].join(", ")}.`;

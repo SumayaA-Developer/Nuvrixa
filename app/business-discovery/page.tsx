@@ -25,9 +25,9 @@ export default function BusinessDiscoveryPage() {
       <span className={styles.eyebrow}>NUVRIXA BUSINESS DISCOVERY</span>
       <h1 id="discovery-title">Understand the business.<br/><em>Design the right system.</em></h1>
       <p className={styles.lead}>Help us understand how your business operates so we can prepare a tailored automation prototype before our first meeting.</p>
-      <p>This structured assessment replaces unnecessary introductory meetings. It allows Nuvrixa to understand your current operations, manual processes, bottlenecks, documents, software, team structure and automation goals before we meet.</p>
+      <p>This focused brief gives Nuvrixa the business context, priority workflow, tools, constraints and prototype requirements needed to prepare something useful before we meet.</p>
       <p>The first consultation can therefore focus on reviewing a proposed solution or prototype rather than collecting basic information.</p>
-      <div className={styles.heroMeta}><span><Clock3 aria-hidden="true"/><b>15–25 minutes</b><small>Estimated completion time</small></span><span><LockKeyhole aria-hidden="true"/><b>Private assessment</b><small>Saved securely on this device until submitted</small></span></div>
+      <div className={styles.heroMeta}><span><Clock3 aria-hidden="true"/><b>8–12 minutes</b><small>Estimated completion time</small></span><span><LockKeyhole aria-hidden="true"/><b>Private assessment</b><small>Saved securely on this device until submitted</small></span></div>
       <aside><LockKeyhole aria-hidden="true"/>Your information will be reviewed privately and used only to assess your business requirements and prepare your proposed solution.</aside>
     </section>
 

@@ -18,7 +18,7 @@ type DetailRecord = Record<string, Record<string, string>>;
 type ProcessRecord = Record<string, string>;
 type Answers = Record<string, Primitive | DetailRecord | ProcessRecord[]>;
 
-const STORAGE_KEY = "nuvrixa-business-discovery-v1";
+const STORAGE_KEY = "nuvrixa-business-discovery-v2";
 const departmentQuestions = [
   ["teamSize", "Approximate team size"], ["leader", "Department leader"],
   ["responsibilities", "Main responsibilities"], ["challenge", "Biggest operational challenge"],
@@ -27,22 +27,17 @@ const departmentQuestions = [
 ] as const;
 const toolQuestions = [
   ["platform", "Name of software or platform"], ["purpose", "What is it used for?"],
-  ["users", "Which employees use it?"], ["worksWell", "Does it work well?"],
-  ["limitation", "Biggest limitation"], ["manualExport", "Is information exported manually?"],
-  ["integrationNeed", "Does it need to connect to another system?"]
+  ["limitation", "What is its biggest limitation?"],
+  ["integrationNeed", "What should it connect to?"]
 ] as const;
 const processQuestions = [
-  ["name", "Process name", "e.g. New customer onboarding"], ["improveFirst", "Should Nuvrixa improve this process first?", "Yes, no or unsure"],
+  ["name", "Process name", "e.g. New customer onboarding"],
   ["trigger", "What triggers the process?", ""], ["starter", "Who starts the process?", ""],
-  ["people", "Which employees or departments are involved?", ""], ["steps", "Describe the process step by step", "Include every hand-off and decision"],
-  ["paper", "Which steps happen on paper?", ""], ["email", "Which steps happen by email?", ""],
-  ["whatsapp", "Which steps happen through WhatsApp?", ""], ["spreadsheets", "Which steps happen in spreadsheets?", ""],
-  ["software", "Which steps happen in existing software?", ""], ["approvals", "Which approvals are required?", ""],
-  ["delays", "Where do delays normally happen?", ""], ["mistakes", "Where do mistakes normally happen?", ""],
-  ["duplicateEntry", "What information is entered more than once?", ""], ["keyPerson", "Which parts rely on one specific employee?", ""],
-  ["absence", "What happens when that employee is absent?", ""], ["duration", "How long does the process usually take?", ""],
-  ["volume", "How often is the process completed?", "Per day, week or month"], ["output", "What is the final output?", ""],
-  ["tracking", "How is the process currently tracked?", ""], ["completion", "How do managers know it is complete?", ""]
+  ["people", "Who else is involved?", ""], ["steps", "Describe the current steps from start to finish", "Include hand-offs and important decisions"],
+  ["inputs", "What information or documents are needed?", ""], ["approvals", "Which approvals are required?", ""],
+  ["delays", "Where do delays, mistakes or repeated work occur?", ""], ["duration", "How long does it take?", ""],
+  ["volume", "How often is it completed?", "Per day, week or month"], ["output", "What should the completed process produce?", ""],
+  ["tracking", "How should progress and success be tracked?", ""]
 ] as const;
 
 function blankProcess(): ProcessRecord { return { name: "", steps: "" }; }
@@ -113,11 +108,11 @@ export function DiscoveryForm() {
   }
   function validateCurrent() {
     const missing = requiredKeysForSection(section).filter((key) => !valuePresent(answers[key]));
-    if (section.id === 5) {
+    if (section.fields.some((field) => field.type === "processes")) {
       const processes = (answers.processes as ProcessRecord[]) || [];
       if (!processes.length || processes.some((process) => !process.name?.trim() || !process.steps?.trim())) missing.push("process details");
     }
-    if (section.id === 16) {
+    if (section.fields.some((field) => field.type === "consent")) {
       if (((answers.consent as string[]) || []).length !== consentStatements.length) missing.push("all confirmations");
       if (String(answers.typedConfirmation || "").trim().toLowerCase() !== String(answers.fullName || "").trim().toLowerCase()) missing.push("typed full-name confirmation");
     }
@@ -158,12 +153,11 @@ export function DiscoveryForm() {
     }
   }
 
-  const reviewGroups = useMemo(() => discoverySections.slice(0, 15).map((item) => {
+  const reviewGroups = useMemo(() => discoverySections.slice(0, -1).map((item) => {
     const entries: Array<readonly [string, unknown]> = item.fields
       .map((field) => [field.label, answers[field.key]] as const)
       .filter(([, value]) => valuePresent(value));
-    if (item.id === 4 && valuePresent(answers.departmentDetails)) entries.push(["Department follow-up details", answers.departmentDetails]);
-    if (item.id === 8 && valuePresent(answers.toolDetails)) entries.push(["Tool and system follow-up details", answers.toolDetails]);
+    if (item.fields.some((field) => field.type === "tools") && valuePresent(answers.toolDetails)) entries.push(["Tool and system follow-up details", answers.toolDetails]);
     return { section: item, entries };
   }), [answers]);
 
@@ -185,19 +179,18 @@ export function DiscoveryForm() {
     <aside className={styles.rail} aria-label="Discovery sections">
       <div className={styles.railIntro}><ClipboardCheck aria-hidden="true"/><div><strong>Business Discovery</strong><span>{completion}% complete</span></div></div>
       <div className={styles.progressTrack}><span style={{ width: `${completion}%` }}/></div>
-      <nav>{discoverySections.map((item, index) => <button type="button" key={item.id} className={index === step ? styles.currentStep : index < step ? styles.completedStep : ""} onClick={() => index < step || step === 15 ? setStep(index) : undefined} aria-current={index === step ? "step" : undefined} disabled={index > step && step !== 15}><i>{index < step ? <Check aria-hidden="true"/> : item.id}</i><span>{item.title}</span></button>)}</nav>
+      <nav>{discoverySections.map((item, index) => <button type="button" key={item.id} className={index === step ? styles.currentStep : index < step ? styles.completedStep : ""} onClick={() => index < step || step === discoverySections.length - 1 ? setStep(index) : undefined} aria-current={index === step ? "step" : undefined} disabled={index > step && step !== discoverySections.length - 1}><i>{index < step ? <Check aria-hidden="true"/> : item.id}</i><span>{item.title}</span></button>)}</nav>
       <button type="button" className={styles.reset} onClick={resetDraft}><RotateCcw aria-hidden="true"/> Clear saved progress</button>
     </aside>
 
     <section className={styles.formPanel} aria-labelledby="section-title">
       <label className={styles.honeypot} aria-hidden="true">Leave this field empty<input name="websiteFax" tabIndex={-1} autoComplete="off" value={String(answers.websiteFax || "")} onChange={(event) => setValue("websiteFax", event.target.value)}/></label>
       <div className={styles.mobileProgress}><span>Section {section.id} of {discoverySections.length}</span><strong>{completion}%</strong><div><i style={{ width: `${completion}%` }}/></div></div>
-      <header className={styles.sectionHeader}><div className={styles.sectionIcon}>{section.id === 4 ? <Users/> : section.id === 8 ? <Wrench/> : section.id === 13 ? <ShieldCheck/> : <Building2/>}</div><div><span className={styles.eyebrow}>SECTION {section.id} OF {discoverySections.length}</span><h2 id="section-title">{section.title}</h2><p>{section.description}</p></div></header>
-      {section.id === 13 && <div className={styles.notice}><ShieldCheck aria-hidden="true"/><p>Nuvrixa does not provide legal advice. Final compliance requirements may need review by your legal, IT or compliance professionals.</p></div>}
-      {section.id === 14 && <div className={styles.warning}><CircleAlert aria-hidden="true"/><p>Do not upload or enter passwords, banking credentials or highly sensitive live data.</p></div>}
+      <header className={styles.sectionHeader}><div className={styles.sectionIcon}>{section.fields.some((field) => field.type === "processes") ? <Users/> : section.fields.some((field) => field.type === "tools") ? <Wrench/> : section.fields.some((field) => field.type === "consent") ? <ShieldCheck/> : <Building2/>}</div><div><span className={styles.eyebrow}>SECTION {section.id} OF {discoverySections.length}</span><h2 id="section-title">{section.title}</h2><p>{section.description}</p></div></header>
+      {section.id === 4 && <div className={styles.notice}><ShieldCheck aria-hidden="true"/><p>Do not include passwords, banking credentials or sensitive live data. Final compliance requirements may need professional review.</p></div>}
       {errors.length > 0 && <div id="discovery-errors" className={styles.error} role="alert" tabIndex={-1}><CircleAlert aria-hidden="true"/><span>{errors[0]}</span></div>}
 
-      {section.id === 16 ? <Review groups={reviewGroups} onEdit={setStep}/> : <div className={styles.fields}>{section.fields.map((field) => <Field key={field.key} field={field} answers={answers} setValue={setValue} toggleValue={toggleValue} selectedDepartments={selectedDepartments} selectedTools={selectedTools} updateDetail={updateDetail} updateProcess={updateProcess}/>)}</div>}
+      {section.fields.some((field) => field.type === "consent") ? <><Review groups={reviewGroups} onEdit={setStep}/><div className={styles.fields}>{section.fields.map((field) => <Field key={field.key} field={field} answers={answers} setValue={setValue} toggleValue={toggleValue} selectedDepartments={selectedDepartments} selectedTools={selectedTools} updateDetail={updateDetail} updateProcess={updateProcess}/>)}</div></> : <div className={styles.fields}>{section.fields.map((field) => <Field key={field.key} field={field} answers={answers} setValue={setValue} toggleValue={toggleValue} selectedDepartments={selectedDepartments} selectedTools={selectedTools} updateDetail={updateDetail} updateProcess={updateProcess}/>)}</div>}
 
       <footer className={styles.formActions}>
         <div className={styles.saveState}><Save aria-hidden="true"/><span>Progress is saved privately on this device.</span></div>
@@ -224,7 +217,7 @@ function Field({ field, answers, setValue, toggleValue, selectedDepartments, sel
   if (field.type === "tools") return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.choiceGrid}>{toolOptions.map((option) => { const active = selectedTools.includes(option); return <button type="button" aria-pressed={active} className={active ? styles.choiceActive : ""} onClick={() => toggleValue("tools", option)} key={option}><span>{active && <Check aria-hidden="true"/>}</span>{option}</button>; })}</div><div className={styles.detailStack}>{selectedTools.filter((tool) => tool !== "None").map((tool) => <div className={styles.detailCard} key={tool}><h3><Wrench aria-hidden="true"/>{tool}</h3><div className={styles.compactGrid}>{toolQuestions.map(([key, question]) => <label key={key}><span>{question}</span><input value={((answers.toolDetails as DetailRecord)?.[tool]?.[key]) || ""} onChange={(event) => updateDetail("toolDetails", tool, key, event.target.value)}/></label>)}</div></div>)}</div></fieldset>;
   if (field.type === "processes") {
     const processes = (answers.processes as ProcessRecord[]) || [blankProcess()];
-    return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.detailStack}>{processes.map((process, index) => <div className={styles.processCard} key={index}><div className={styles.cardHeading}><h3>Process {index + 1}{process.name ? `: ${process.name}` : ""}</h3>{processes.length > 1 && <button type="button" aria-label={`Remove process ${index + 1}`} onClick={() => setValue("processes", processes.filter((_, processIndex) => processIndex !== index))}><Trash2 aria-hidden="true"/></button>}</div><div className={styles.compactGrid}>{processQuestions.map(([key, question, placeholder]) => <label className={["steps","people","paper","email","whatsapp","spreadsheets","software","approvals","delays","mistakes","duplicateEntry","keyPerson","absence","output","tracking","completion"].includes(key) ? styles.wide : ""} key={key}><span>{question}{["name","steps"].includes(key) && <b aria-label="required">Required</b>}</span>{["steps","people","paper","email","whatsapp","spreadsheets","software","approvals","delays","mistakes","duplicateEntry","keyPerson","absence","output","tracking","completion"].includes(key) ? <textarea placeholder={placeholder} value={process[key] || ""} onChange={(event) => updateProcess(index, key, event.target.value)}/> : <input placeholder={placeholder} value={process[key] || ""} onChange={(event) => updateProcess(index, key, event.target.value)}/>}</label>)}</div></div>)}</div><button type="button" className={styles.addButton} onClick={() => setValue("processes", [...processes, blankProcess()])}><Plus aria-hidden="true"/> Add another process</button></fieldset>;
+    return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.detailStack}>{processes.map((process, index) => <div className={styles.processCard} key={index}><div className={styles.cardHeading}><h3>Process {index + 1}{process.name ? `: ${process.name}` : ""}</h3>{processes.length > 1 && <button type="button" aria-label={`Remove process ${index + 1}`} onClick={() => setValue("processes", processes.filter((_, processIndex) => processIndex !== index))}><Trash2 aria-hidden="true"/></button>}</div><div className={styles.compactGrid}>{processQuestions.map(([key, question, placeholder]) => <label className={["steps","people","inputs","approvals","delays","output","tracking"].includes(key) ? styles.wide : ""} key={key}><span>{question}{["name","steps"].includes(key) && <b aria-label="required">Required</b>}</span>{["steps","people","inputs","approvals","delays","output","tracking"].includes(key) ? <textarea placeholder={placeholder} value={process[key] || ""} onChange={(event) => updateProcess(index, key, event.target.value)}/> : <input placeholder={placeholder} value={process[key] || ""} onChange={(event) => updateProcess(index, key, event.target.value)}/>}</label>)}</div></div>)}</div><button type="button" className={styles.addButton} onClick={() => setValue("processes", [...processes, blankProcess()])}><Plus aria-hidden="true"/> Add a connected process</button></fieldset>;
   }
   if (field.type === "ranking") {
     const ranking = (answers[field.key] as string[]) || ["", "", "", "", ""];
