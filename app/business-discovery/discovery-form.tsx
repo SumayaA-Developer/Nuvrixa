@@ -11,6 +11,7 @@ import {
   consentStatements, departmentOptions, discoverySections, requiredKeysForSection,
   toolOptions, type DiscoveryField
 } from "@/lib/business-discovery";
+import { integrationsConfig } from "@/lib/integrations";
 import styles from "./discovery.module.css";
 
 type Primitive = string | string[];
@@ -58,6 +59,7 @@ export function DiscoveryForm() {
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "error" | "success">("idle");
   const [reference, setReference] = useState("");
+  const [bookingUrl, setBookingUrl] = useState("");
   const [submissionId, setSubmissionId] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const section = discoverySections[step];
@@ -149,7 +151,15 @@ export function DiscoveryForm() {
       const payload = await response.json() as { ok?: boolean; reference?: string; error?: string };
       if (!response.ok || !payload.ok || !payload.reference) throw new Error(payload.error || "Submission failed");
       localStorage.removeItem(STORAGE_KEY);
-      setReference(payload.reference); setStatus("success"); window.scrollTo({ top: 0, behavior: "smooth" });
+      const cal = new URL(integrationsConfig.calBookingUrl);
+      cal.searchParams.set("embed", "1");
+      cal.searchParams.set("name", String(answers.fullName || "").trim());
+      cal.searchParams.set("email", String(answers.email || "").trim());
+      cal.searchParams.set("metadata[discoveryReference]", payload.reference);
+      setReference(payload.reference);
+      setBookingUrl(cal.toString());
+      setStatus("success");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       setStatus("error");
       setErrors([error instanceof Error ? error.message : "We could not submit your discovery. Your answers remain saved on this device."]);
@@ -170,12 +180,17 @@ export function DiscoveryForm() {
     <span className={styles.eyebrow}>SUBMISSION COMPLETE</span>
     <h2 id="success-title">Your Business Discovery Has Been Submitted</h2>
     <p>Thank you for giving Nuvrixa a detailed view of your business.</p>
-    <p>Our team will review your processes, identify suitable automation opportunities and determine whether a prototype can be prepared for your first consultation.</p>
+    <p>Your discovery is safely recorded. Choose a convenient meeting time below, then select either an online or face-to-face meeting in the booking form.</p>
     <div className={styles.reference}>Reference number <strong>{reference}</strong></div>
-    <ol className={styles.nextSteps}>
-      <li>Nuvrixa reviews the submitted information.</li><li>We identify the highest-impact process opportunities.</li><li>We prepare a proposed workflow, system concept or prototype where practical.</li><li>We contact you regarding the next suitable step.</li>
-    </ol>
-    <div className={styles.successActions}><Link href="/">Return to Home</Link><Link href="/solutions">Visit Our Solutions</Link><Link href="/contact">Contact Nuvrixa</Link></div>
+    {bookingUrl ? <div className={styles.bookingPanel}>
+      <div className={styles.bookingHeader}>
+        <div><span className={styles.eyebrow}>BOOK YOUR DISCOVERY MEETING</span><h3>Select a Date, Time and Meeting Type</h3><p>Your name and email have been prefilled. Cal.com will send the confirmation after you book.</p></div>
+        <Link href="/">Return Home</Link>
+      </div>
+      <iframe title="Book your Nuvrixa business discovery meeting" src={bookingUrl} loading="eager" allow="payment"/>
+      <div className={styles.bookingFooter}><p>Finished booking? The appointment will be added through the connected calendar.</p><Link href="/">← Return to Nuvrixa Home</Link></div>
+    </div> : <div className={styles.error} role="alert"><CircleAlert aria-hidden="true"/><span>The calendar is temporarily unavailable. Please contact Nuvrixa with reference {reference}.</span></div>}
+    <div className={styles.successActions}><Link href="/">Return to Home</Link><Link href="/contact">Contact Nuvrixa</Link></div>
   </section>;
 
   return <div className={styles.experience}>
