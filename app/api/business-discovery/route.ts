@@ -14,6 +14,7 @@ const attempts = new Map<string, number[]>();
 const completed = new Map<string, { reference: string; receipt: string; expiresAt: number }>();
 
 function cleanText(value: unknown, max = 12000) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
+function normalizeConfirmationName(value: unknown) { return cleanText(value, 200).normalize("NFKC").replace(/\s+/g, " ").toLocaleLowerCase(); }
 function valuePresent(value: unknown) {
   if (Array.isArray(value)) return value.length > 0 && value.some((item) => typeof item === "string" ? Boolean(item.trim()) : Boolean(item));
   return typeof value === "string" ? Boolean(value.trim()) : Boolean(value);
@@ -44,7 +45,7 @@ function validationError(answers: Answers) {
   if (!EMAIL_PATTERN.test(cleanText(answers.email, 254))) return "Enter a valid business email address.";
   const consent = Array.isArray(answers.consent) ? answers.consent : [];
   if (consent.length !== consentStatements.length) return "Please accept every required confirmation.";
-  if (cleanText(answers.typedConfirmation).toLowerCase() !== cleanText(answers.fullName).toLowerCase()) return "The typed full-name confirmation must match your name.";
+  if (normalizeConfirmationName(answers.typedConfirmation) !== normalizeConfirmationName(answers.fullName)) return "The typed full-name confirmation must match your name.";
   return "";
 }
 function escapeHtml(value: string) { return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] || c)); }

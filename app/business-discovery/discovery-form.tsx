@@ -48,6 +48,9 @@ function valuePresent(value: unknown) {
   if (Array.isArray(value)) return value.length > 0 && value.some((item) => String(item).trim());
   return typeof value === "string" ? Boolean(value.trim()) : Boolean(value);
 }
+function normalizeConfirmationName(value: unknown) {
+  return String(value || "").normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase();
+}
 
 export function DiscoveryForm() {
   const [step, setStep] = useState(0);
@@ -113,8 +116,8 @@ export function DiscoveryForm() {
       if (!processes.length || processes.some((process) => !process.name?.trim() || !process.steps?.trim())) missing.push("process details");
     }
     if (section.fields.some((field) => field.type === "consent")) {
-      if (((answers.consent as string[]) || []).length !== consentStatements.length) missing.push("all confirmations");
-      if (String(answers.typedConfirmation || "").trim().toLowerCase() !== String(answers.fullName || "").trim().toLowerCase()) missing.push("typed full-name confirmation");
+      if (((answers.consent as string[]) || []).length !== consentStatements.length) missing.push("the confirmation checkbox");
+      if (normalizeConfirmationName(answers.typedConfirmation) !== normalizeConfirmationName(answers.fullName)) missing.push(`your full name exactly as "${String(answers.fullName || "").trim()}"`);
     }
     if (missing.length) {
       setErrors([`Complete the required information before continuing: ${missing.join(", ")}.`]);
@@ -226,7 +229,10 @@ function Field({ field, answers, setValue, toggleValue, selectedDepartments, sel
   if (field.type === "uploads") return <div className={`${styles.full} ${styles.uploadPanel}`}><div><FileLock2 aria-hidden="true"/><h3>Secure supporting files</h3><p>Sample forms, screenshots, spreadsheets, SOPs, reports, invoices, quotations, workflow diagrams and photos of paper registers can be attached once secure file storage is configured.</p></div><label className={styles.disabledUpload}><FileUp aria-hidden="true"/><span>File upload is not connected yet</span><small>Your assessment can still be submitted without files. Nuvrixa will request examples securely using your reference number.</small><input type="file" multiple disabled aria-describedby="upload-status"/></label><p id="upload-status" className={styles.uploadStatus}>No files will be transmitted from this control until the documented secure storage integration is enabled.</p></div>;
   if (field.type === "consent") {
     const accepted = (answers.consent as string[]) || [];
-    return <div className={styles.full}><fieldset className={styles.consent}><legend>{label}</legend>{consentStatements.map((statement, index) => <label key={statement}><input type="checkbox" checked={accepted.includes(String(index))} onChange={() => toggleValue("consent", String(index))}/><span>{index === 5 ? <>I agree to the Nuvrixa <Link href="/privacy-policy">Privacy Policy</Link>.</> : statement}</span></label>)}</fieldset><label className={styles.confirmName}><span className={styles.labelText}>Type your full name to confirm<b aria-label="required">Required</b></span><input value={String(answers.typedConfirmation || "")} onChange={(event) => setValue("typedConfirmation", event.target.value)} autoComplete="name"/></label></div>;
+    const allAccepted = accepted.length === consentStatements.length;
+    const expectedName = String(answers.fullName || "").trim();
+    const nameMatches = Boolean(expectedName) && normalizeConfirmationName(answers.typedConfirmation) === normalizeConfirmationName(expectedName);
+    return <div className={styles.full}><fieldset className={styles.consent}><legend>{label}</legend><ul className={styles.consentSummary}>{consentStatements.map((statement, index) => <li key={statement}>{index === 5 ? <>I agree to the Nuvrixa <Link href="/privacy-policy">Privacy Policy</Link>.</> : statement}</li>)}</ul><label className={styles.acceptAll}><input type="checkbox" checked={allAccepted} onChange={() => setValue("consent", allAccepted ? [] : consentStatements.map((_, index) => String(index)))}/><span>I have read and accept all confirmations above.<b aria-label="required">Required</b></span></label></fieldset><label className={styles.confirmName}><span className={styles.labelText}>Type your full name to confirm<b aria-label="required">Required</b><small>Enter it as: <strong>{expectedName}</strong></small></span><div className={styles.confirmInput}><input value={String(answers.typedConfirmation || "")} onChange={(event) => setValue("typedConfirmation", event.target.value)} autoComplete="name" autoCapitalize="words" spellCheck={false} required/><button type="button" onClick={() => setValue("typedConfirmation", expectedName)}>Use my saved name</button></div></label><div className={`${styles.confirmStatus} ${allAccepted && nameMatches ? styles.confirmReady : ""}`} role="status">{allAccepted && nameMatches ? <><CheckCircle2 aria-hidden="true"/>Ready to submit.</> : <><CircleAlert aria-hidden="true"/>Accept the confirmation and enter the saved full name before submitting.</>}</div></div>;
   }
   const common = { id: field.key, name: field.key, value, required: field.required, placeholder: field.placeholder, onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setValue(field.key, event.target.value) };
   if (field.type === "textarea") return <label className={styles.wide}>{label}<textarea {...common}/></label>;

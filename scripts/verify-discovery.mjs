@@ -8,7 +8,7 @@ const answers = Object.fromEntries(requiredKeys.map((key) => [key, "Test answer"
 
 Object.assign(answers, {
   fullName: "Test User",
-  typedConfirmation: "Test User",
+  typedConfirmation: "  test   user  ",
   email: "test.user@example.com",
   departments: ["Sales"],
   departmentDetails: { Sales: { teamSize: "2", leader: "Test Lead", challenge: "Manual follow-up" } },
@@ -22,7 +22,7 @@ Object.assign(answers, {
 if (process.argv.includes("--browser-fixture")) {
   console.log(Buffer.from(JSON.stringify({
     answers,
-    step: 15,
+    step: 6,
     submissionId: randomUUID(),
     savedAt: new Date().toISOString(),
   })).toString("base64"));
