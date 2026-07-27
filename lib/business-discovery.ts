@@ -1,14 +1,8 @@
-export type DiscoveryFieldType =
-  | "text" | "email" | "tel" | "url" | "number" | "date"
-  | "textarea" | "select" | "multiselect" | "yesno"
-  | "departments" | "processes" | "tools" | "uploads" | "ranking" | "consent";
-
 export type DiscoveryField = {
   key: string;
   label: string;
-  type: DiscoveryFieldType;
+  type: "text" | "email" | "tel" | "url" | "number" | "textarea" | "select" | "multi";
   required?: boolean;
-  helper?: string;
   options?: readonly string[];
   placeholder?: string;
 };
@@ -20,55 +14,44 @@ export type DiscoverySection = {
   fields: readonly DiscoveryField[];
 };
 
-const yesNo = ["Yes", "No", "Unsure"] as const;
-const employeeRanges = ["Just me", "2–5", "6–10", "11–25", "26–50", "51–100", "More than 100"] as const;
-
-export const departmentOptions = ["Sales", "Marketing", "Customer service", "Operations", "Administration", "Finance", "Human resources", "Procurement", "Stock or inventory", "Logistics", "Project management", "Legal or compliance", "Management", "IT", "Other"] as const;
-export const toolOptions = ["Microsoft Excel", "Google Sheets", "Microsoft Word", "Google Docs", "Email", "WhatsApp", "Google Drive", "OneDrive", "Dropbox", "Accounting software", "CRM", "Project management software", "Booking software", "Point-of-sale system", "Inventory software", "HR software", "Payroll software", "Custom software", "Paper files", "Physical registers", "None", "Other"] as const;
+const channels = ["Walk-ins", "Phone", "WhatsApp", "Facebook", "Instagram", "Website", "Referral", "Other"];
+const pains = ["Too much paperwork", "Duplicate capturing", "Missed appointments", "Missed quotations", "Slow internal hand-offs", "Lost documents", "Manual invoicing", "Poor communication", "Forgetting follow-ups", "Stock problems", "Customer complaints", "Too many WhatsApp messages", "Too many emails", "Other"];
+const paper = ["Job cards", "Quotations", "Invoices", "Delivery notes", "Checklists", "Inspection forms", "Timesheets", "Leave forms", "Incident reports", "Customer forms", "Contracts", "Stock sheets", "Other"];
+const software = ["Xero", "Sage", "QuickBooks", "Pastel", "HubSpot", "Zoho", "Salesforce", "WhatsApp", "Microsoft Teams", "Slack", "Gmail", "Outlook", "Google Calendar", "Calendly", "PayFast", "Yoco", "Peach Payments", "Microsoft Excel", "Google Sheets", "Other"];
+const automation = ["Quoting", "Customer follow-up", "Appointment booking", "Email replies", "WhatsApp replies", "Invoice generation", "Report generation", "Data capturing", "Employee onboarding", "Leave approvals", "Stock updates", "Reminder messages", "AI chatbot", "Internal knowledge base", "Customer portal"];
+const ai = ["Answer customer questions", "Generate quotations", "Summarise meetings", "Write emails", "Analyse reports", "Forecast sales", "Schedule appointments", "Train staff", "Answer employee questions", "Search company documents", "Voice assistant", "Other"];
 
 export const discoverySections: readonly DiscoverySection[] = [
-  { id: 1, title: "You and Your Business", description: "The essentials we need to understand who you are and the context of the business.", fields: [
-    {key:"fullName",label:"Full name",type:"text",required:true},{key:"jobTitle",label:"Job title or role",type:"text",required:true},{key:"email",label:"Business email address",type:"email",required:true},{key:"phone",label:"Contact number",type:"tel",required:true},
-    {key:"registeredName",label:"Business name",type:"text",required:true},{key:"website",label:"Business website",type:"url"},{key:"industry",label:"Industry",type:"text",required:true},{key:"employees",label:"Number of employees",type:"select",required:true,options:employeeRanges},
-    {key:"productsServices",label:"Main products or services",type:"textarea",required:true},{key:"customerType",label:"Typical customers",type:"textarea"},{key:"country",label:"Country",type:"text",required:true}
+  { id: 1, title: "Business Information", description: "Tell us who you are and give us the context needed to research the business.", fields: [
+    {key:"businessName",label:"Business name",type:"text",required:true},{key:"industry",label:"Industry",type:"text",required:true},{key:"website",label:"Website",type:"url"},{key:"socialLinks",label:"Facebook, Instagram or LinkedIn links",type:"textarea"},{key:"businessAddress",label:"Business address",type:"textarea",required:true},
+    {key:"fullName",label:"Contact person",type:"text",required:true},{key:"position",label:"Position",type:"text",required:true},{key:"email",label:"Business email",type:"email",required:true},{key:"phone",label:"Phone number",type:"tel",required:true},{key:"employees",label:"Number of employees",type:"number",required:true},{key:"branches",label:"Number of branches",type:"number",required:true},{key:"yearsInBusiness",label:"Years in business",type:"number",required:true}
   ]},
-  { id: 2, title: "Goals and Biggest Problems", description: "Focus on the outcomes and operational friction that matter most right now.", fields: [
-    {key:"topGoals",label:"What are your three most important business goals?",type:"textarea",required:true},{key:"primaryOutcome",label:"Which outcome matters most?",type:"select",required:true,options:["Save time","Reduce costs","Increase revenue","Improve customer service","Reduce errors","Improve reporting","Improve staff productivity","Scale without hiring immediately","Other"]},
-    {key:"growthBlocker",label:"What is the biggest operational problem holding the business back?",type:"textarea",required:true},{key:"repetitiveTasks",label:"Which manual or repetitive tasks consume the most time?",type:"textarea",required:true},{key:"errorTasks",label:"Where do delays, errors or customer complaints occur?",type:"textarea"},
-    {key:"unchangedRisk",label:"What happens if nothing changes?",type:"textarea"},{key:"sixMonthSuccess",label:"What would success look like six months after implementation?",type:"textarea",required:true}
+  { id: 2, title: "Business Overview", description: "Help us understand what you sell, who you serve and how customers reach you.", fields: [
+    {key:"companyDescription",label:"Describe what your company does",type:"textarea",required:true},{key:"productsServices",label:"What products or services do you sell?",type:"textarea",required:true},{key:"idealCustomers",label:"Who are your ideal customers?",type:"textarea",required:true},{key:"customerChannels",label:"How do customers usually find you?",type:"multi",required:true,options:channels}
   ]},
-  { id: 3, title: "Priority Workflow", description: "Describe the one process you most want us to prototype. Add another only if it is closely connected.", fields: [
-    {key:"departments",label:"Teams involved in this workflow",type:"multiselect",required:true,options:departmentOptions},{key:"processes",label:"Priority business workflow",type:"processes",required:true}
+  { id: 3, title: "Biggest Pain Points", description: "Show us where time, revenue and customer experience are being lost.", fields: [
+    {key:"dailyFrustration",label:"What frustrates you the most every day?",type:"textarea",required:true},{key:"painPoints",label:"Which problems affect the business?",type:"multi",required:true,options:pains},{key:"hoursLost",label:"Hours lost to manual work each week",type:"select",required:true,options:["Less than 5","5–10","10–20","20+"]},{key:"oneProblem",label:"If you could remove one business problem tomorrow, what would it be?",type:"textarea",required:true}
   ]},
-  { id: 4, title: "Tools, Data and Controls", description: "Show us what the workflow uses today and the practical constraints the prototype must respect.", fields: [
-    {key:"tools",label:"Tools currently used in this workflow",type:"tools",required:true},{key:"disconnectedSystems",label:"Do these tools need to exchange information?",type:"yesno",options:yesNo},{key:"frequentDocuments",label:"Which forms, spreadsheets, documents or reports are used?",type:"textarea"},
-    {key:"documentStorage",label:"Where is the information currently stored?",type:"textarea"},{key:"personalInfo",label:"Does the workflow handle personal or confidential information?",type:"yesno",options:yesNo},{key:"accessLevels",label:"Do different users need different access levels?",type:"yesno",options:yesNo},
-    {key:"approvalActions",label:"Which actions must always be approved by a person?",type:"textarea"},{key:"regulations",label:"Any security, legal or industry requirements we should know about?",type:"textarea"}
+  { id: 4, title: "Current Workflows", description: "Describe the real steps, hand-offs and delays. This becomes the basis of your prototype and process map.", fields: [
+    {key:"customerJourney",label:"How does a new customer become a paying customer? Describe every step.",type:"textarea",required:true,placeholder:"Enquiry → appointment → quotation → approval → invoice → payment → delivery → support"},
+    {key:"salesWorkflow",label:"Sales workflow",type:"textarea"},{key:"serviceWorkflow",label:"Customer service and support workflow",type:"textarea"},{key:"projectWorkflow",label:"Project or job delivery workflow",type:"textarea"},{key:"staffWorkflow",label:"Staff onboarding and management workflow",type:"textarea"},{key:"financeWorkflow",label:"Finance and invoicing workflow",type:"textarea"},{key:"inventoryWorkflow",label:"Inventory or stock workflow",type:"textarea"},{key:"bookingWorkflow",label:"Booking or appointment workflow",type:"textarea"},{key:"afterSalesWorkflow",label:"After-sales and follow-up workflow",type:"textarea"}
   ]},
-  { id: 5, title: "Prototype Brief", description: "Define what we should prepare so the meeting is visual, useful and decision-ready.", fields: [
-    {key:"prototypeDemo",label:"What should the prototype demonstrate?",type:"textarea",required:true},{key:"prototypeProcess",label:"Confirm the exact process the prototype should focus on",type:"textarea",required:true},{key:"essentialFeatures",label:"Which features or screens are essential?",type:"textarea",required:true},
-    {key:"managementNumbers",label:"Which numbers, status updates or reports should it show?",type:"textarea"},{key:"usefulAlerts",label:"Which alerts, reminders or automated messages would be useful?",type:"textarea"},{key:"humanDecisions",label:"Which decisions must remain with a person?",type:"textarea"},
-    {key:"prototypeData",label:"What data should the prototype use?",type:"select",required:true,options:["Sample data","Client-provided, non-sensitive data","A combination","Unsure"]},{key:"prototypeBranding",label:"Should your branding be reflected in the prototype?",type:"textarea"},
-    {key:"meetingAttendees",label:"Who will attend the meeting?",type:"textarea"},{key:"decisionMaker",label:"Who is the final decision-maker?",type:"text"}
+  { id: 5, title: "Paper and Document Processes", description: "Identify paperwork that can be digitised, routed or generated automatically.", fields: [
+    {key:"paperProcesses",label:"Which processes still use paper?",type:"multi",options:paper},{key:"paperVolume",label:"Approximately how many paper forms are completed each day?",type:"number"},{key:"duplicateEntry",label:"Do employees rewrite the same information more than once?",type:"select",required:true,options:["Yes","No","Sometimes"]},{key:"documentStorage",label:"Where are documents stored?",type:"multi",required:true,options:["Office files","Filing cabinets","Google Drive","Dropbox","OneDrive","Email","WhatsApp","Other"]}
   ]},
-  { id: 6, title: "Budget and Timing", description: "This helps us keep the proposed solution realistic and appropriately phased.", fields: [
-    {key:"budgetRange",label:"Preferred budget range (USD)",type:"select",required:true,options:["Under $1,000","$1,000–$2,500","$2,501–$5,000","$5,001–$10,000","$10,001–$25,000","More than $25,000","Budget not yet determined","Prefer not to disclose"]},
-    {key:"desiredStart",label:"Desired start date",type:"date"},{key:"desiredLaunch",label:"Desired launch date",type:"date"},{key:"urgent",label:"Is the project urgent?",type:"yesno",options:yesNo},{key:"deadlineDriver",label:"What is driving the deadline?",type:"textarea"},
-    {key:"phasedBuild",label:"Would you consider a phased build?",type:"yesno",options:yesNo},{key:"proceedCriteria",label:"What would convince the business to proceed?",type:"textarea"}
+  { id: 6, title: "Software and Integrations", description: "List the systems that a proposed solution must work with.", fields: [
+    {key:"software",label:"Which systems do you currently use?",type:"multi",required:true,options:software},{key:"otherSoftware",label:"Other software, versions or important details",type:"textarea"},{key:"integrationProblems",label:"Which systems do not communicate properly today?",type:"textarea"},{key:"dataSources",label:"Where is your most important business data stored?",type:"textarea",required:true}
   ]},
-  { id: 7, title: "Review and Consent", description: "Review the brief, edit anything necessary and confirm the submission.", fields: [{key:"consent",label:"Confirmations",type:"consent",required:true}]}
-] as const;
-
-export const consentStatements = [
-  "I confirm that the information provided is accurate to the best of my knowledge.",
-  "I understand that this assessment does not create a binding contract.",
-  "I understand that Nuvrixa may use this information to prepare a proposed solution, process map, recommendation or prototype.",
-  "I understand that any estimated scope or pricing will only be confirmed after review.",
-  "I confirm that I am authorised to submit information on behalf of the business.",
-  "I agree to the Nuvrixa Privacy Policy.",
-  "I agree to be contacted regarding this enquiry."
-] as const;
-
-export function requiredKeysForSection(section: DiscoverySection) {
-  return section.fields.filter((field) => field.required).map((field) => field.key);
-}
+  { id: 7, title: "Automation Opportunities", description: "Choose the workflows you would most like Nuvrixa to improve.", fields: [
+    {key:"automationInterests",label:"What would you like to automate?",type:"multi",required:true,options:automation},{key:"automationPriority",label:"Which automation would create the biggest immediate impact?",type:"textarea",required:true},{key:"approvals",label:"Which actions must always be approved by a person?",type:"textarea"}
+  ]},
+  { id: 8, title: "AI Opportunities", description: "Identify where carefully governed AI could assist customers, staff and management.", fields: [
+    {key:"aiInterests",label:"Where would you like AI to help?",type:"multi",options:ai},{key:"knowledgeSources",label:"Which documents or knowledge should an AI assistant use?",type:"textarea"},{key:"aiRestrictions",label:"What must AI never decide or do without human approval?",type:"textarea"}
+  ]},
+  { id: 9, title: "Budget, Timing and Success", description: "Keep the prototype and three implementation options realistic.", fields: [
+    {key:"budget",label:"Comfortable investment range (USD)",type:"select",required:true,options:["Under $2,500","$2,500–$5,000","$5,000–$10,000","$10,000–$25,000","$25,000+"]},{key:"timeline",label:"When would you like this implemented?",type:"select",required:true,options:["Immediately","Within 30 days","1–3 months","3–6 months","Just exploring"]},{key:"successMeasures",label:"How will you measure whether the solution is successful?",type:"textarea",required:true},{key:"decisionMakers",label:"Who will approve the project and who should attend the meeting?",type:"textarea",required:true}
+  ]},
+  { id: 10, title: "Prototype Brief and Supporting Files", description: "Give us the final direction and optional evidence needed to prepare before we meet.", fields: [
+    {key:"prototypeFocus",label:"What should the first prototype demonstrate?",type:"textarea",required:true},{key:"idealBusiness",label:"If Nuvrixa redesigned your operations, what would your ideal business look like one year from today?",type:"textarea",required:true},{key:"documentLinks",label:"Optional links to forms, spreadsheets, reports, flowcharts, logos or brand guides",type:"textarea"}
+  ]}
+];

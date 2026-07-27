@@ -1,81 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import {
-  ArrowLeft, ArrowRight, Building2, Check, CheckCircle2, ChevronRight,
-  CircleAlert, ClipboardCheck, FileLock2, FileUp, Plus, RotateCcw, Save,
-  ShieldCheck, Trash2, Users, Wrench
-} from "lucide-react";
-import {
-  consentStatements, departmentOptions, discoverySections, requiredKeysForSection,
-  toolOptions, type DiscoveryField
-} from "@/lib/business-discovery";
+import { useEffect, useState } from "react";
+import { Check, ChevronLeft, ChevronRight, LockKeyhole, Save, UploadCloud } from "lucide-react";
 import { integrationsConfig } from "@/lib/integrations";
-import styles from "./discovery.module.css";
+import { discoverySections, type DiscoveryField } from "@/lib/business-discovery";
+import styles from "../referral-discovery/referral.module.css";
 
-type Primitive = string | string[];
-type DetailRecord = Record<string, Record<string, string>>;
-type ProcessRecord = Record<string, string>;
-type Answers = Record<string, Primitive | DetailRecord | ProcessRecord[]>;
+type Answers = Record<string, string | string[]>;
+const STORAGE_KEY = "nuvrixa-business-discovery-v3";
 
-const STORAGE_KEY = "nuvrixa-business-discovery-v2";
-const departmentQuestions = [
-  ["teamSize", "Approximate team size"], ["leader", "Department leader"],
-  ["responsibilities", "Main responsibilities"], ["challenge", "Biggest operational challenge"],
-  ["manualTasks", "Repeated manual tasks"], ["documents", "Key documents used"],
-  ["software", "Software or tools used"]
-] as const;
-const toolQuestions = [
-  ["platform", "Name of software or platform"], ["purpose", "What is it used for?"],
-  ["limitation", "What is its biggest limitation?"],
-  ["integrationNeed", "What should it connect to?"]
-] as const;
-const processQuestions = [
-  ["name", "Process name", "e.g. New customer onboarding"],
-  ["trigger", "What triggers the process?", ""], ["starter", "Who starts the process?", ""],
-  ["people", "Who else is involved?", ""], ["steps", "Describe the current steps from start to finish", "Include hand-offs and important decisions"],
-  ["inputs", "What information or documents are needed?", ""], ["approvals", "Which approvals are required?", ""],
-  ["delays", "Where do delays, mistakes or repeated work occur?", ""], ["duration", "How long does it take?", ""],
-  ["volume", "How often is it completed?", "Per day, week or month"], ["output", "What should the completed process produce?", ""],
-  ["tracking", "How should progress and success be tracked?", ""]
-] as const;
-
-function blankProcess(): ProcessRecord { return { name: "", steps: "" }; }
-function initialAnswers(): Answers {
-  return { departments: [], departmentDetails: {}, processes: [blankProcess()], tools: [], toolDetails: {}, consent: [], painRanking: ["", "", "", "", ""] };
-}
-function valuePresent(value: unknown) {
-  if (Array.isArray(value)) return value.length > 0 && value.some((item) => String(item).trim());
-  return typeof value === "string" ? Boolean(value.trim()) : Boolean(value);
-}
-function normalizeConfirmationName(value: unknown) {
-  return String(value || "").normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase();
+function present(value: unknown) {
+  return Array.isArray(value) ? value.length > 0 : typeof value === "string" && Boolean(value.trim());
 }
 
 export function DiscoveryForm() {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Answers>(initialAnswers);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [files, setFiles] = useState<File[]>([]);
+  const [submissionId, setSubmissionId] = useState("");
   const [ready, setReady] = useState(false);
-  const [status, setStatus] = useState<"idle" | "submitting" | "error" | "success">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [error, setError] = useState("");
   const [reference, setReference] = useState("");
   const [bookingUrl, setBookingUrl] = useState("");
-  const [submissionId, setSubmissionId] = useState("");
-  const [errors, setErrors] = useState<string[]>([]);
+  const [uploadMessage, setUploadMessage] = useState("");
   const section = discoverySections[step];
+  const completion = Math.round(((step + 1) / discoverySections.length) * 100);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved) as { answers?: Answers; step?: number; submissionId?: string };
-          if (parsed.answers) setAnswers({ ...initialAnswers(), ...parsed.answers });
-          if (typeof parsed.step === "number") setStep(Math.min(Math.max(parsed.step, 0), discoverySections.length - 1));
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored) as { answers?: Answers; step?: number; submissionId?: string };
+          setAnswers(parsed.answers || {});
+          setStep(Math.min(parsed.step || 0, discoverySections.length - 1));
           setSubmissionId(parsed.submissionId || crypto.randomUUID());
-        } else {
-          setSubmissionId(crypto.randomUUID());
-        }
+        } else setSubmissionId(crypto.randomUUID());
       } catch {
         localStorage.removeItem(STORAGE_KEY);
         setSubmissionId(crypto.randomUUID());
@@ -90,180 +52,109 @@ export function DiscoveryForm() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, step, submissionId, savedAt: new Date().toISOString() }));
   }, [answers, ready, status, step, submissionId]);
 
-  const completion = Math.round(((step + 1) / discoverySections.length) * 100);
-  const selectedDepartments = (answers.departments as string[]) || [];
-  const selectedTools = (answers.tools as string[]) || [];
-
-  function setValue(key: string, value: Primitive | DetailRecord | ProcessRecord[]) {
+  function setValue(key: string, value: string | string[]) {
     setAnswers((current) => ({ ...current, [key]: value }));
-    setErrors([]);
+    setError("");
   }
-  function toggleValue(key: string, option: string) {
-    const selected = (answers[key] as string[]) || [];
-    setValue(key, selected.includes(option) ? selected.filter((item) => item !== option) : [...selected, option]);
+
+  function toggle(key: string, option: string) {
+    const current = (answers[key] as string[]) || [];
+    setValue(key, current.includes(option) ? current.filter((item) => item !== option) : [...current, option]);
   }
-  function updateDetail(group: "departmentDetails" | "toolDetails", item: string, key: string, value: string) {
-    const details = (answers[group] as DetailRecord) || {};
-    setValue(group, { ...details, [item]: { ...(details[item] || {}), [key]: value } });
-  }
-  function updateProcess(index: number, key: string, value: string) {
-    const processes = [...((answers.processes as ProcessRecord[]) || [])];
-    processes[index] = { ...processes[index], [key]: value };
-    setValue("processes", processes);
-  }
-  function validateCurrent() {
-    const missing = requiredKeysForSection(section).filter((key) => !valuePresent(answers[key]));
-    if (section.fields.some((field) => field.type === "processes")) {
-      const processes = (answers.processes as ProcessRecord[]) || [];
-      if (!processes.length || processes.some((process) => !process.name?.trim() || !process.steps?.trim())) missing.push("process details");
-    }
-    if (section.fields.some((field) => field.type === "consent")) {
-      if (((answers.consent as string[]) || []).length !== consentStatements.length) missing.push("the confirmation checkbox");
-      if (normalizeConfirmationName(answers.typedConfirmation) !== normalizeConfirmationName(answers.fullName)) missing.push(`your full name exactly as "${String(answers.fullName || "").trim()}"`);
-    }
+
+  function validate() {
+    const missing = section.fields.filter((field) => field.required && !present(answers[field.key])).map((field) => field.label);
     if (missing.length) {
-      setErrors([`Complete the required information before continuing: ${missing.join(", ")}.`]);
-      document.getElementById("discovery-errors")?.focus();
+      setError(`Complete the required information: ${missing.join(", ")}.`);
+      document.getElementById("referral-error")?.focus();
       return false;
     }
     return true;
   }
+
   function next() {
-    if (!validateCurrent()) return;
+    if (!validate()) return;
     setStep((current) => Math.min(current + 1, discoverySections.length - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  function back() {
-    setStep((current) => Math.max(current - 1, 0));
-    setErrors([]);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-  function resetDraft() {
-    if (!window.confirm("Clear all saved discovery answers on this device?")) return;
-    localStorage.removeItem(STORAGE_KEY);
-    setAnswers(initialAnswers()); setSubmissionId(crypto.randomUUID()); setStep(0); setErrors([]); setStatus("idle");
-  }
+
   async function submit() {
-    if (!validateCurrent()) return;
+    if (!validate()) return;
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 4_000_000) {
+      setError("Supporting files must total less than 4 MB. You can paste secure document links instead.");
+      return;
+    }
     setStatus("submitting");
+    setError("");
     try {
-      const response = await fetch("/api/business-discovery", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers, submissionId }) });
-      const payload = await response.json() as { ok?: boolean; reference?: string; error?: string };
-      if (!response.ok || !payload.ok || !payload.reference) throw new Error(payload.error || "Submission failed");
-      localStorage.removeItem(STORAGE_KEY);
+      const body = new FormData();
+      body.append("payload", JSON.stringify({ answers, submissionId }));
+      files.forEach((file) => body.append("files", file));
+      const response = await fetch("/api/business-discovery", { method: "POST", body });
+      const result = await response.json() as { ok?: boolean; reference?: string; uploadedFiles?: number; fileUploadWarning?: boolean; error?: string };
+      if (!response.ok || !result.ok || !result.reference) throw new Error(result.error || "Submission failed.");
       const cal = new URL(integrationsConfig.calBookingUrl);
       cal.searchParams.set("embed", "1");
-      cal.searchParams.set("name", String(answers.fullName || "").trim());
-      cal.searchParams.set("email", String(answers.email || "").trim());
-      cal.searchParams.set("metadata[discoveryReference]", payload.reference);
-      setReference(payload.reference);
+      cal.searchParams.set("name", String(answers.fullName || ""));
+      cal.searchParams.set("email", String(answers.email || ""));
+      cal.searchParams.set("metadata[discoveryReference]", result.reference);
+      localStorage.removeItem(STORAGE_KEY);
+      setReference(result.reference);
       setBookingUrl(cal.toString());
+      setUploadMessage(files.length === 0 ? "Your discovery questionnaire is now attached to your Nuvrixa CRM record." : result.fileUploadWarning ? `Your discovery was saved. ${result.uploadedFiles || 0} of ${files.length} supporting files reached secure storage; Nuvrixa will contact you for any missing files.` : `Your discovery and ${result.uploadedFiles || files.length} supporting file(s) are now stored with your Nuvrixa CRM record.`);
       setStatus("success");
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error) {
+    } catch (caught) {
       setStatus("error");
-      setErrors([error instanceof Error ? error.message : "We could not submit your discovery. Your answers remain saved on this device."]);
+      setError(caught instanceof Error ? caught.message : "Your answers remain saved. Please try again.");
     }
   }
 
-  const reviewGroups = useMemo(() => discoverySections.slice(0, -1).map((item) => {
-    const entries: Array<readonly [string, unknown]> = item.fields
-      .map((field) => [field.label, answers[field.key]] as const)
-      .filter(([, value]) => valuePresent(value));
-    if (item.fields.some((field) => field.type === "tools") && valuePresent(answers.toolDetails)) entries.push(["Tool and system follow-up details", answers.toolDetails]);
-    return { section: item, entries };
-  }), [answers]);
-
-  if (!ready) return <div className={styles.loading} aria-live="polite">Restoring your saved assessment…</div>;
-  if (status === "success") return <section className={styles.success} aria-labelledby="success-title">
-    <div className={styles.successIcon}><CheckCircle2 aria-hidden="true"/></div>
-    <span className={styles.eyebrow}>SUBMISSION COMPLETE</span>
-    <h2 id="success-title">Your Business Discovery Has Been Submitted</h2>
-    <p>Thank you for giving Nuvrixa a detailed view of your business.</p>
-    <p>Your discovery is safely recorded. Choose a convenient meeting time below, then select either an online or face-to-face meeting in the booking form.</p>
-    <div className={styles.reference}>Reference number <strong>{reference}</strong></div>
-    {bookingUrl ? <div className={styles.bookingPanel}>
-      <div className={styles.bookingHeader}>
-        <div><span className={styles.eyebrow}>BOOK YOUR DISCOVERY MEETING</span><h3>Select a Date, Time and Meeting Type</h3><p>Your name and email have been prefilled. Cal.com will send the confirmation after you book.</p></div>
-        <Link href="/">Return Home</Link>
-      </div>
-      <iframe title="Book your Nuvrixa business discovery meeting" src={bookingUrl} loading="eager" allow="payment"/>
-      <div className={styles.bookingFooter}><p>Finished booking? The appointment will be added through the connected calendar.</p><Link href="/">← Return to Nuvrixa Home</Link></div>
-    </div> : <div className={styles.error} role="alert"><CircleAlert aria-hidden="true"/><span>The calendar is temporarily unavailable. Please contact Nuvrixa with reference {reference}.</span></div>}
-    <div className={styles.successActions}><Link href="/">Return to Home</Link><Link href="/contact">Contact Nuvrixa</Link></div>
+  if (!ready) return <p>Restoring your saved referral discovery…</p>;
+  if (status === "success") return <section className={styles.success}>
+    <Check size={46} color="#25e2ef"/>
+    <span className={styles.eyebrow}>DISCOVERY RECEIVED</span>
+    <h2>Thank you. Let’s prepare your prototype.</h2>
+    <p>{uploadMessage}</p>
+    <div className={styles.reference}>Reference <strong>{reference}</strong></div>
+    <p>Book the first meeting below. You can choose an online or face-to-face meeting in the calendar.</p>
+    <div className={styles.booking}>
+      <header><div><strong>Select a date and meeting type</strong><p>Your name and email are prefilled.</p></div><Link href="/">Return Home</Link></header>
+      <iframe title="Book your Nuvrixa business discovery meeting" src={bookingUrl} loading="eager"/>
+      <footer><span>Cal.com will send the confirmation and add the appointment to the connected calendar.</span><Link href="/">← Nuvrixa Home</Link></footer>
+    </div>
+    <div className={styles.successLinks}><Link href="/">Return Home</Link><Link href="/contact">Contact Nuvrixa</Link></div>
   </section>;
 
   return <div className={styles.experience}>
-    <aside className={styles.rail} aria-label="Discovery sections">
-      <div className={styles.railIntro}><ClipboardCheck aria-hidden="true"/><div><strong>Business Discovery</strong><span>{completion}% complete</span></div></div>
-      <div className={styles.progressTrack}><span style={{ width: `${completion}%` }}/></div>
-      <nav>{discoverySections.map((item, index) => <button type="button" key={item.id} className={index === step ? styles.currentStep : index < step ? styles.completedStep : ""} onClick={() => index < step || step === discoverySections.length - 1 ? setStep(index) : undefined} aria-current={index === step ? "step" : undefined} disabled={index > step && step !== discoverySections.length - 1}><i>{index < step ? <Check aria-hidden="true"/> : item.id}</i><span>{item.title}</span></button>)}</nav>
-      <button type="button" className={styles.reset} onClick={resetDraft}><RotateCcw aria-hidden="true"/> Clear saved progress</button>
+    <aside className={styles.rail}>
+      <h2>Business Discovery</h2><p>Section {step + 1} of {discoverySections.length} · {completion}% complete</p>
+      <div className={styles.progress}><span style={{ width: `${completion}%` }}/></div>
+      <nav>{discoverySections.map((item, index) => <button type="button" key={item.id} className={index === step ? styles.current : index < step ? styles.done : ""} onClick={() => index <= step && setStep(index)} disabled={index > step}><i>{index < step ? <Check size={13}/> : item.id}</i><span>{item.title}</span></button>)}</nav>
     </aside>
-
-    <section className={styles.formPanel} aria-labelledby="section-title">
-      <label className={styles.honeypot} aria-hidden="true">Leave this field empty<input name="websiteFax" tabIndex={-1} autoComplete="off" value={String(answers.websiteFax || "")} onChange={(event) => setValue("websiteFax", event.target.value)}/></label>
-      <div className={styles.mobileProgress}><span>Section {section.id} of {discoverySections.length}</span><strong>{completion}%</strong><div><i style={{ width: `${completion}%` }}/></div></div>
-      <header className={styles.sectionHeader}><div className={styles.sectionIcon}>{section.fields.some((field) => field.type === "processes") ? <Users/> : section.fields.some((field) => field.type === "tools") ? <Wrench/> : section.fields.some((field) => field.type === "consent") ? <ShieldCheck/> : <Building2/>}</div><div><span className={styles.eyebrow}>SECTION {section.id} OF {discoverySections.length}</span><h2 id="section-title">{section.title}</h2><p>{section.description}</p></div></header>
-      {section.id === 4 && <div className={styles.notice}><ShieldCheck aria-hidden="true"/><p>Do not include passwords, banking credentials or sensitive live data. Final compliance requirements may need professional review.</p></div>}
-      {errors.length > 0 && <div id="discovery-errors" className={styles.error} role="alert" tabIndex={-1}><CircleAlert aria-hidden="true"/><span>{errors[0]}</span></div>}
-
-      {section.fields.some((field) => field.type === "consent") ? <><Review groups={reviewGroups} onEdit={setStep}/><div className={styles.fields}>{section.fields.map((field) => <Field key={field.key} field={field} answers={answers} setValue={setValue} toggleValue={toggleValue} selectedDepartments={selectedDepartments} selectedTools={selectedTools} updateDetail={updateDetail} updateProcess={updateProcess}/>)}</div></> : <div className={styles.fields}>{section.fields.map((field) => <Field key={field.key} field={field} answers={answers} setValue={setValue} toggleValue={toggleValue} selectedDepartments={selectedDepartments} selectedTools={selectedTools} updateDetail={updateDetail} updateProcess={updateProcess}/>)}</div>}
-
-      <footer className={styles.formActions}>
-        <div className={styles.saveState}><Save aria-hidden="true"/><span>Progress is saved privately on this device.</span></div>
-        <div>{step > 0 && <button type="button" className={styles.back} onClick={back}><ArrowLeft aria-hidden="true"/> Back</button>}{step < discoverySections.length - 1 ? <button type="button" className={styles.continue} onClick={next}>Continue <ArrowRight aria-hidden="true"/></button> : <button type="button" className={styles.submit} disabled={status === "submitting"} onClick={submit}>{status === "submitting" ? "Submitting securely…" : "Submit Business Discovery"} <CheckCircle2 aria-hidden="true"/></button>}</div>
+    <section className={styles.formPanel}>
+      <label className={styles.honeypot}>Leave blank<input value={String(answers.websiteFax || "")} onChange={(event) => setValue("websiteFax", event.target.value)}/></label>
+      <header className={styles.sectionHead}><span className={styles.eyebrow}>SECTION {section.id} OF {discoverySections.length}</span><h2>{section.title}</h2><p>{section.description}</p></header>
+      {error && <div id="referral-error" className={styles.error} role="alert" tabIndex={-1}>{error}</div>}
+      <div className={styles.fields}>
+        {section.fields.map((field) => <Field key={field.key} field={field} value={answers[field.key]} setValue={setValue} toggle={toggle}/>)}
+        {section.id === 10 && <label className={styles.upload}><UploadCloud/><strong>Optional supporting files</strong><input type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.webp,.txt" onChange={(event) => setFiles(Array.from(event.target.files || []))}/><small>Up to 4 MB total. Upload forms, spreadsheets, job cards, flowcharts, reports, paperwork photos, logos or brand guides. Never upload passwords, banking credentials or sensitive live customer data.</small>{files.length > 0 && <small>{files.length} file(s) selected: {files.map((file) => file.name).join(", ")}</small>}</label>}
+      </div>
+      <footer className={styles.actions}>
+        <p><Save size={14}/> Progress is saved privately on this device.</p>
+        <div>{step > 0 && <button type="button" className={styles.back} onClick={() => setStep((current) => current - 1)}><ChevronLeft size={17}/> Back</button>}{step < discoverySections.length - 1 ? <button type="button" className={styles.next} onClick={next}>Continue <ChevronRight size={17}/></button> : <button type="button" className={styles.submit} onClick={submit} disabled={status === "submitting"}>{status === "submitting" ? "Submitting securely…" : "Submit and Book Meeting"} <LockKeyhole size={17}/></button>}</div>
       </footer>
     </section>
   </div>;
 }
 
-type FieldProps = {
-  field: DiscoveryField; answers: Answers;
-  setValue: (key: string, value: Primitive | DetailRecord | ProcessRecord[]) => void;
-  toggleValue: (key: string, option: string) => void;
-  selectedDepartments: string[]; selectedTools: string[];
-  updateDetail: (group: "departmentDetails" | "toolDetails", item: string, key: string, value: string) => void;
-  updateProcess: (index: number, key: string, value: string) => void;
-};
-
-function Field({ field, answers, setValue, toggleValue, selectedDepartments, selectedTools, updateDetail, updateProcess }: FieldProps) {
-  const value = (answers[field.key] as string) || "";
-  const label = <span className={styles.labelText}>{field.label}{field.required && <b aria-label="required">Required</b>}{field.helper && <small>{field.helper}</small>}</span>;
-  if (field.type === "multiselect") return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.choiceGrid}>{field.options?.map((option) => { const active = ((answers[field.key] as string[]) || []).includes(option); return <button type="button" aria-pressed={active} className={active ? styles.choiceActive : ""} onClick={() => toggleValue(field.key, option)} key={option}><span>{active && <Check aria-hidden="true"/>}</span>{option}</button>; })}</div></fieldset>;
-  if (field.type === "departments") return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.choiceGrid}>{departmentOptions.map((option) => { const active = selectedDepartments.includes(option); return <button type="button" aria-pressed={active} className={active ? styles.choiceActive : ""} onClick={() => toggleValue("departments", option)} key={option}><span>{active && <Check aria-hidden="true"/>}</span>{option}</button>; })}</div><div className={styles.detailStack}>{selectedDepartments.map((department) => <div className={styles.detailCard} key={department}><h3><Users aria-hidden="true"/>{department}</h3><div className={styles.compactGrid}>{departmentQuestions.map(([key, question]) => <label key={key}><span>{question}</span>{["responsibilities","challenge","manualTasks","documents","software"].includes(key) ? <textarea value={((answers.departmentDetails as DetailRecord)?.[department]?.[key]) || ""} onChange={(event) => updateDetail("departmentDetails", department, key, event.target.value)}/> : <input value={((answers.departmentDetails as DetailRecord)?.[department]?.[key]) || ""} onChange={(event) => updateDetail("departmentDetails", department, key, event.target.value)}/>}</label>)}</div></div>)}</div></fieldset>;
-  if (field.type === "tools") return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.choiceGrid}>{toolOptions.map((option) => { const active = selectedTools.includes(option); return <button type="button" aria-pressed={active} className={active ? styles.choiceActive : ""} onClick={() => toggleValue("tools", option)} key={option}><span>{active && <Check aria-hidden="true"/>}</span>{option}</button>; })}</div><div className={styles.detailStack}>{selectedTools.filter((tool) => tool !== "None").map((tool) => <div className={styles.detailCard} key={tool}><h3><Wrench aria-hidden="true"/>{tool}</h3><div className={styles.compactGrid}>{toolQuestions.map(([key, question]) => <label key={key}><span>{question}</span><input value={((answers.toolDetails as DetailRecord)?.[tool]?.[key]) || ""} onChange={(event) => updateDetail("toolDetails", tool, key, event.target.value)}/></label>)}</div></div>)}</div></fieldset>;
-  if (field.type === "processes") {
-    const processes = (answers.processes as ProcessRecord[]) || [blankProcess()];
-    return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.detailStack}>{processes.map((process, index) => <div className={styles.processCard} key={index}><div className={styles.cardHeading}><h3>Process {index + 1}{process.name ? `: ${process.name}` : ""}</h3>{processes.length > 1 && <button type="button" aria-label={`Remove process ${index + 1}`} onClick={() => setValue("processes", processes.filter((_, processIndex) => processIndex !== index))}><Trash2 aria-hidden="true"/></button>}</div><div className={styles.compactGrid}>{processQuestions.map(([key, question, placeholder]) => <label className={["steps","people","inputs","approvals","delays","output","tracking"].includes(key) ? styles.wide : ""} key={key}><span>{question}{["name","steps"].includes(key) && <b aria-label="required">Required</b>}</span>{["steps","people","inputs","approvals","delays","output","tracking"].includes(key) ? <textarea placeholder={placeholder} value={process[key] || ""} onChange={(event) => updateProcess(index, key, event.target.value)}/> : <input placeholder={placeholder} value={process[key] || ""} onChange={(event) => updateProcess(index, key, event.target.value)}/>}</label>)}</div></div>)}</div><button type="button" className={styles.addButton} onClick={() => setValue("processes", [...processes, blankProcess()])}><Plus aria-hidden="true"/> Add a connected process</button></fieldset>;
-  }
-  if (field.type === "ranking") {
-    const ranking = (answers[field.key] as string[]) || ["", "", "", "", ""];
-    return <fieldset className={styles.full}><legend>{label}</legend><div className={styles.ranking}>{ranking.map((item, index) => <label key={index}><i>{index + 1}</i><span className={styles.srOnly}>Pain point rank {index + 1}</span><input value={item} placeholder={`Priority ${index + 1}`} onChange={(event) => { const next = [...ranking]; next[index] = event.target.value; setValue(field.key, next); }}/></label>)}</div></fieldset>;
-  }
-  if (field.type === "uploads") return <div className={`${styles.full} ${styles.uploadPanel}`}><div><FileLock2 aria-hidden="true"/><h3>Secure supporting files</h3><p>Sample forms, screenshots, spreadsheets, SOPs, reports, invoices, quotations, workflow diagrams and photos of paper registers can be attached once secure file storage is configured.</p></div><label className={styles.disabledUpload}><FileUp aria-hidden="true"/><span>File upload is not connected yet</span><small>Your assessment can still be submitted without files. Nuvrixa will request examples securely using your reference number.</small><input type="file" multiple disabled aria-describedby="upload-status"/></label><p id="upload-status" className={styles.uploadStatus}>No files will be transmitted from this control until the documented secure storage integration is enabled.</p></div>;
-  if (field.type === "consent") {
-    const accepted = (answers.consent as string[]) || [];
-    const allAccepted = accepted.length === consentStatements.length;
-    const expectedName = String(answers.fullName || "").trim();
-    const nameMatches = Boolean(expectedName) && normalizeConfirmationName(answers.typedConfirmation) === normalizeConfirmationName(expectedName);
-    return <div className={styles.full}><fieldset className={styles.consent}><legend>{label}</legend><ul className={styles.consentSummary}>{consentStatements.map((statement, index) => <li key={statement}>{index === 5 ? <>I agree to the Nuvrixa <Link href="/privacy-policy">Privacy Policy</Link>.</> : statement}</li>)}</ul><label className={styles.acceptAll}><input type="checkbox" checked={allAccepted} onChange={() => setValue("consent", allAccepted ? [] : consentStatements.map((_, index) => String(index)))}/><span>I have read and accept all confirmations above.<b aria-label="required">Required</b></span></label></fieldset><label className={styles.confirmName}><span className={styles.labelText}>Type your full name to confirm<b aria-label="required">Required</b><small>Enter it as: <strong>{expectedName}</strong></small></span><div className={styles.confirmInput}><input value={String(answers.typedConfirmation || "")} onChange={(event) => setValue("typedConfirmation", event.target.value)} autoComplete="name" autoCapitalize="words" spellCheck={false} required/><button type="button" onClick={() => setValue("typedConfirmation", expectedName)}>Use my saved name</button></div></label><div className={`${styles.confirmStatus} ${allAccepted && nameMatches ? styles.confirmReady : ""}`} role="status">{allAccepted && nameMatches ? <><CheckCircle2 aria-hidden="true"/>Ready to submit.</> : <><CircleAlert aria-hidden="true"/>Accept the confirmation and enter the saved full name before submitting.</>}</div></div>;
-  }
-  const common = { id: field.key, name: field.key, value, required: field.required, placeholder: field.placeholder, onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setValue(field.key, event.target.value) };
-  if (field.type === "textarea") return <label className={styles.wide}>{label}<textarea {...common}/></label>;
-  if (field.type === "select" || field.type === "yesno") return <label>{label}<select {...common}><option value="">Select an option</option>{field.options?.map((option) => <option key={option}>{option}</option>)}</select></label>;
-  return <label>{label}<input {...common} type={field.type}/></label>;
-}
-
-function Review({ groups, onEdit }: { groups: Array<{ section: (typeof discoverySections)[number]; entries: ReadonlyArray<readonly [string, unknown]> }>; onEdit: (index: number) => void }) {
-  return <div className={styles.review}><div className={styles.notice}><ClipboardCheck aria-hidden="true"/><p>Review your answers before submitting. Use Edit section to make changes; your draft remains saved.</p></div>{groups.map(({ section, entries }, index) => <section key={section.id}><header><div><span>Section {section.id}</span><h3>{section.title}</h3></div><button type="button" onClick={() => onEdit(index)}>Edit section <ChevronRight aria-hidden="true"/></button></header>{entries.length ? <dl>{entries.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{formatReviewValue(value)}</dd></div>)}</dl> : <p className={styles.empty}>No optional information supplied.</p>}</section>)}</div>;
-}
-
-function formatReviewValue(value: unknown): string {
-  if (Array.isArray(value)) {
-    if (value.every((item) => typeof item === "string")) return value.filter(Boolean).join(", ");
-    return value.map((item, index) => `Item ${index + 1}: ${formatReviewValue(item)}`).join(" | ");
-  }
-  if (value && typeof value === "object") return Object.entries(value as Record<string, unknown>).map(([key, item]) => `${key}: ${formatReviewValue(item)}`).join("; ");
-  return String(value || "Not supplied");
+function Field({ field, value, setValue, toggle }: { field: DiscoveryField; value: string | string[] | undefined; setValue: (key: string, value: string | string[]) => void; toggle: (key: string, option: string) => void }) {
+  const wide = field.type === "textarea" || field.type === "multi";
+  if (field.type === "multi") return <fieldset className={`${styles.field} ${styles.wide}`}><span>{field.label}{field.required && <b>REQUIRED</b>}</span><div className={styles.choices}>{field.options?.map((option) => <button type="button" key={option} className={(value as string[] || []).includes(option) ? styles.selected : ""} aria-pressed={(value as string[] || []).includes(option)} onClick={() => toggle(field.key, option)}>{(value as string[] || []).includes(option) ? "✓ " : ""}{option}</button>)}</div></fieldset>;
+  return <label className={`${styles.field} ${wide ? styles.wide : ""}`}><span>{field.label}{field.required && <b>REQUIRED</b>}</span>
+    {field.type === "textarea" ? <textarea value={String(value || "")} placeholder={field.placeholder} onChange={(event) => setValue(field.key, event.target.value)}/> :
+      field.type === "select" ? <select value={String(value || "")} onChange={(event) => setValue(field.key, event.target.value)}><option value="">Select an option</option>{field.options?.map((option) => <option key={option}>{option}</option>)}</select> :
+      <input type={field.type} value={String(value || "")} placeholder={field.placeholder} min={field.type === "number" ? "0" : undefined} onChange={(event) => setValue(field.key, event.target.value)}/>}
+  </label>;
 }
