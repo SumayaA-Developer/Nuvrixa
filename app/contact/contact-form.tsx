@@ -31,7 +31,7 @@ export function ContactForm() {
     <label>Tell us more about your question or project<textarea name="message" required placeholder="Provide as much detail as possible so we can assist you better..."/></label>
     <label>What is your expected timeline? *</label>
     <div className={styles.radios}>{["Within 1 Month","1 – 3 Months","3 – 6 Months","6+ Months","Not Sure"].map(value=><label key={value}><input type="radio" name="timeline" required value={value}/>{value}</label>)}</div>
-    <label>Estimated Budget (USD, Optional)<select name="budget" defaultValue=""><option value="">Select a range</option><option>Under $2,500 USD</option><option>$2,500–$5,000 USD</option><option>$5,000–$10,000 USD</option><option>$10,000–$25,000 USD</option><option>$25,000+ USD</option></select></label>
+    <label>Estimated Budget (USD, Optional)<select name="budget" defaultValue=""><option value="">Select a range</option><option>$1,500–$2,500 USD</option><option>$2,500–$5,000 USD</option><option>$5,000–$10,000 USD</option><option>$10,000–$25,000 USD</option><option>$25,000+ USD</option></select></label>
     <label className={styles.consent}><input type="checkbox" name="consent" required/>I agree to Nuvrixa’s <a href="/privacy-policy">Privacy Policy</a> and <a href="/terms">Terms &amp; Conditions.</a></label>
     {status === "sent" && <div className={styles.success}>Thank you. Your message has been sent to our team.</div>}
     {status === "error" && <div className={styles.error}>We couldn’t send your message. Please email hello@nuvrixa.co.za.</div>}
