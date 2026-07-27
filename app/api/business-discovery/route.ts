@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     if (Number(request.headers.get("content-length") || "0") > MAX_BODY_BYTES) return NextResponse.json({ error: "This submission is too large." }, { status: 413 });
     const form = await request.formData();
     const payloadText = form.get("payload");
-    if (typeof payloadText !== "string") return NextResponse.json({ error: "The referral discovery request is invalid." }, { status: 400 });
+    if (typeof payloadText !== "string") return NextResponse.json({ error: "The business discovery request is invalid." }, { status: 400 });
     const payload = JSON.parse(payloadText) as { answers?: Answers; submissionId?: string };
     const answers = payload.answers;
     if (!answers || !UUID.test(payload.submissionId || "")) return NextResponse.json({ error: "Refresh the page and try again." }, { status: 400 });
@@ -52,31 +52,31 @@ export async function POST(request: Request) {
     const submittedAt = new Date().toISOString();
     const reference = `NUV-DISC-${submittedAt.slice(0, 10).replaceAll("-", "")}-${randomUUID().slice(0, 8).toUpperCase()}`;
     const names = clean(answers.fullName, 160).split(/\s+/); const firstname = names.shift() || ""; const lastname = names.join(" "); const email = clean(answers.email, 254).toLowerCase();
-    const contactResponse = await hubSpot("/crm/v3/objects/contacts/batch/upsert", token, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inputs: [{ id: email, idProperty: "email", properties: { email, firstname, lastname, company: clean(answers.businessName, 250), jobtitle: clean(answers.position, 200), phone: clean(answers.phone, 80), website: clean(answers.website, 500), industry: clean(answers.industry, 200), message: `Referral Discovery ${reference}: ${clean(answers.oneProblem, 1500)}`, hs_lead_status: "NEW" } }] }) });
-    if (!contactResponse.ok) { console.error("Referral contact upsert failed", contactResponse.status, await contactResponse.text()); return NextResponse.json({ error: "We could not save your referral discovery securely." }, { status: 502 }); }
+    const contactResponse = await hubSpot("/crm/v3/objects/contacts/batch/upsert", token, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inputs: [{ id: email, idProperty: "email", properties: { email, firstname, lastname, company: clean(answers.businessName, 250), jobtitle: clean(answers.position, 200), phone: clean(answers.phone, 80), website: clean(answers.website, 500), industry: clean(answers.industry, 200), message: `Business Discovery ${reference}: ${clean(answers.oneProblem, 1500)}`, hs_lead_status: "NEW" } }] }) });
+    if (!contactResponse.ok) { console.error("Business discovery contact upsert failed", contactResponse.status, await contactResponse.text()); return NextResponse.json({ error: "We could not save your business discovery securely." }, { status: 502 }); }
     const contactId = ((await contactResponse.json()) as { results?: Array<{ id?: string }> }).results?.[0]?.id;
     if (!contactId) return NextResponse.json({ error: "The CRM contact could not be confirmed." }, { status: 502 });
     const uploaded: string[] = [];
     for (const file of files) {
       const upload = new FormData();
       upload.append("file", file, file.name);
-      upload.append("folderPath", `/Nuvrixa/Referral Discovery/${reference}`);
+      upload.append("folderPath", `/Nuvrixa/Business Discovery/${reference}`);
       upload.append("options", JSON.stringify({ access: "PRIVATE", overwrite: false, duplicateValidationStrategy: "NONE", duplicateValidationScope: "EXACT_FOLDER" }));
       const uploadResponse = await hubSpot("/files/v3/files", token, { method: "POST", body: upload });
       if (uploadResponse.ok) {
         const result = await uploadResponse.json() as { id?: string; name?: string };
         uploaded.push(`${result.name || file.name} (HubSpot file ID ${result.id || "unknown"})`);
-      } else console.error("Referral file upload failed", uploadResponse.status, await uploadResponse.text());
+      } else console.error("Business discovery file upload failed", uploadResponse.status, await uploadResponse.text());
     }
     const rows = discoverySections.map((section) => `<h3>${escapeHtml(section.id + ". " + section.title)}</h3>${section.fields.map((field) => `<p><strong>${escapeHtml(field.label)}</strong><br>${escapeHtml(display(answers[field.key]))}</p>`).join("")}`).join("");
     const fileRows = uploaded.length ? `<h3>Supporting files</h3><p>${uploaded.map(escapeHtml).join("<br>")}</p>` : "<h3>Supporting files</h3><p>No files uploaded.</p>";
     const note = `<h2>Nuvrixa Business Discovery</h2><p><strong>Reference:</strong> ${escapeHtml(reference)}<br><strong>Submitted:</strong> ${escapeHtml(submittedAt)}</p>${rows}${fileRows}`;
     const noteResponse = await hubSpot("/crm/v3/objects/notes", token, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ properties: { hs_timestamp: submittedAt, hs_note_body: note.slice(0, 65000) }, associations: [{ to: { id: contactId }, types: [noteAssociation] }] }) });
-    if (!noteResponse.ok) { console.error("Referral note creation failed", noteResponse.status, await noteResponse.text()); return NextResponse.json({ error: `Contact saved as ${reference}, but the full referral brief could not be attached.` }, { status: 502 }); }
+    if (!noteResponse.ok) { console.error("Business discovery note creation failed", noteResponse.status, await noteResponse.text()); return NextResponse.json({ error: `Contact saved as ${reference}, but the full discovery brief could not be attached.` }, { status: 502 }); }
     completed.set(payload.submissionId || "", { reference, uploadedFiles: uploaded.length, expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
     return NextResponse.json({ ok: true, reference, uploadedFiles: uploaded.length, fileUploadWarning: files.length > uploaded.length });
   } catch (error) {
-    console.error("Referral discovery failed", error);
-    return NextResponse.json({ error: "We could not process the referral discovery. Your answers remain saved." }, { status: 500 });
+    console.error("Business discovery failed", error);
+    return NextResponse.json({ error: "We could not process the business discovery. Your answers remain saved." }, { status: 500 });
   }
 }

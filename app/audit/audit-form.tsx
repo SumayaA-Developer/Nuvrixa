@@ -7,11 +7,13 @@ import styles from "./audit.module.css";
 
 export function AuditForm(){
  const [status,setStatus]=useState<"idle"|"saving"|"error">("idle");
+ const [errorMessage,setErrorMessage]=useState("");
  const [bookingUrl,setBookingUrl]=useState<string | null>(null);
  async function submit(e:React.FormEvent<HTMLFormElement>){
-  e.preventDefault(); setStatus("saving");
+  e.preventDefault(); setStatus("saving"); setErrorMessage("");
   const form=new FormData(e.currentTarget); const entries:Record<string,FormDataEntryValue|FormDataEntryValue[]>=Object.fromEntries(form.entries());
   entries.improvement_areas=form.getAll("improvement_areas");
+  if((entries.improvement_areas as FormDataEntryValue[]).length===0){setStatus("error");setErrorMessage("Select at least one area you want to improve.");return}
   try{
    const response=await fetch("/api/audit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(entries)});
    if(!response.ok) throw new Error("HubSpot submission failed");
@@ -20,7 +22,7 @@ export function AuditForm(){
    if(entries.email) cal.searchParams.set("email",String(entries.email));
    if(entries.firstname) cal.searchParams.set("name",`${entries.firstname} ${entries.lastname||""}`.trim());
    setBookingUrl(cal.toString());
-  }catch{setStatus("error")}
+  }catch{setStatus("error");setErrorMessage("We couldn’t save your details. Please try again.")}
  }
  if(bookingUrl) return <section className={styles.booking} aria-labelledby="booking-title">
   <div className={styles.bookingHeader}><div><span>DETAILS SAVED</span><h2 id="booking-title">Choose Your 30-Minute Audit Time</h2><p>Your details are securely saved. Complete your booking below without leaving Nuvrixa.</p></div><Link href="/">Return Home</Link></div>
@@ -40,7 +42,8 @@ export function AuditForm(){
   <label>What tools & systems are you currently using? (Optional)<textarea name="current_tools" placeholder="e.g. HubSpot, Zoho, QuickBooks, Excel, Slack, etc."/></label>
   <h3>3. CHALLENGES</h3><div className={styles.fields}><label>Biggest operational challenge *<input name="biggest_challenge" required placeholder="What slows your team down?"/></label><label>Desired timeframe *<select name="timeframe" required defaultValue=""><option value="" disabled>Select timeframe</option><option>Immediately</option><option>Within 3 months</option><option>Within 6 months</option><option>Exploring options</option></select></label><label>Estimated Budget (USD, Optional)<select name="budget" defaultValue=""><option value="">Select a range</option><option>Under $2,500 USD</option><option>$2,500–$5,000 USD</option><option>$5,000–$10,000 USD</option><option>$10,000–$25,000 USD</option><option>$25,000+ USD</option></select></label></div>
   <h3>4. CONTACT DETAILS</h3><div className={styles.fields}><label>First Name *<input name="firstname" required/></label><label>Last Name *<input name="lastname" required/></label><label>Email Address *<input name="email" type="email" required/></label><label>Phone Number *<input name="phone" type="tel" required/></label></div>
-  {status==="error"&&<div className={styles.error}>We couldn’t save your details. Please try again.</div>}
-  <div className={styles.submit}><button disabled={status==="saving"}>{status==="saving"?"Saving...":"Save & Continue　→"}</button><span>Takes less than 2 minutes</span></div>
+  <label><input name="consent" type="checkbox" required/> I agree to Nuvrixa&apos;s <Link href="/privacy-policy">Privacy Policy</Link> and <Link href="/terms">Terms &amp; Conditions</Link>.</label>
+  {status==="error"&&<div className={styles.error}>{errorMessage}</div>}
+  <div className={styles.submit}><button disabled={status==="saving"}>{status==="saving"?"Saving...":"Save & Continue →"}</button><span>Takes less than 2 minutes</span></div>
  </form>
 }

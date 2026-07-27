@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { email, consent } = await request.json();
-    if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+    const { email: suppliedEmail, consent } = await request.json();
+    const email = typeof suppliedEmail === "string" ? suppliedEmail.trim().toLowerCase() : "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
     if (consent !== true) return NextResponse.json({ error: "Consent is required." }, { status: 400 });
     const token = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
     if (!token) return NextResponse.json({ error: "Newsletter automation is not configured." }, { status: 503 });

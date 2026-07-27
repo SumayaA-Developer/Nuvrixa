@@ -29,7 +29,7 @@ function Laptop() {
     <div className={styles.wave}>{Array.from({length: 12},(_,i)=><i key={i}/>)}</div>
     <div className={styles.laptop}>
       <div className={styles.screen}>
-        <div className={styles.screenTop}><Logo tiny/><span>◉　◉　◉</span></div>
+        <div className={styles.screenTop}><Logo tiny/><span>◉ ◉ ◉</span></div>
         <div className={styles.screenBody}>
           <aside>{["▣ Dashboard","◉ Projects","♧ Automations","♙ Tasks","♙ Clients","▤ Reports","⚙ Settings"].map((x,i)=><span className={i===0?styles.dashActive:""} key={x}>{x}</span>)}</aside>
           <main><h3>Overview</h3><div className={styles.miniStats}>{[["Automations","Active","23","+12%"],["Hours Saved","This Month","1,248","+18%"],["Tasks Automated","This Month","4,562","+24%"]].map(x=><article key={x[0]}><small>{x[0]}</small><em>{x[1]}</em><strong>{x[2]} <b>{x[3]}</b></strong></article>)}</div>
@@ -38,7 +38,7 @@ function Laptop() {
       </div>
       <div className={styles.keyboard}>{Array.from({length:36},(_,i)=><i key={i}/>)}</div><div className={styles.trackpad}/><div className={styles.base}/>
     </div>
-    <div className={styles.phone}><div className={styles.notch}/><div className={styles.phoneTop}>9:41　　⌁ ▪</div><h3>Automation<br/>Impact</h3><small>This Month</small>{[["▣","Time Saved","1,248 hrs"],["▤","Tasks Automated","4,562"],["▣","Errors Reduced","87%"],["◎","Response Time","-42%"]].map(x=><div className={styles.phoneRow} key={x[1]}><i>{x[0]}</i><span>{x[1]}</span><b>{x[2]}</b></div>)}</div>
+    <div className={styles.phone}><div className={styles.notch}/><div className={styles.phoneTop}>9:41  ⌁ ▪</div><h3>Automation<br/>Impact</h3><small>This Month</small>{[["▣","Time Saved","1,248 hrs"],["▤","Tasks Automated","4,562"],["▣","Errors Reduced","87%"],["◎","Response Time","-42%"]].map(x=><div className={styles.phoneRow} key={x[1]}><i>{x[0]}</i><span>{x[1]}</span><b>{x[2]}</b></div>)}</div>
   </div>
 }
 
@@ -55,7 +55,7 @@ export default function HomePage() {
       <Panel><div className={styles.heading}><h2>The Problems We Solve</h2><p>Outdated processes and disconnected systems slow your business down.</p></div><div className={styles.problems}>{problems.map(([icon,title,copy],i)=><article key={title}><div className={i%2?styles.blueIcon:styles.purpleIcon}>{icon}</div><div><h3>{title}</h3><p>{copy}</p></div></article>)}</div></Panel>
       <Panel><div className={styles.heading}><h2>Systems Designed For Businesses Like Yours</h2></div><div className={styles.industries}>{industries.map(([icon,a,b],i)=><article key={a}><div className={i%3===0?styles.blueIcon:styles.purpleIcon}>{icon}</div><p>{a}<br/>{b}</p></article>)}</div><p className={styles.disclaimer}><i>ⓘ</i> Outcomes depend on your business, current processes, implementation scope and system usage.</p></Panel>
       <Panel><div className={styles.heading}><h2>Outcomes Our Systems Are Designed To Support</h2></div><div className={styles.outcomes}>{outcomes.map(([icon,a,b],i)=><article key={a}><div className={i%3===2?styles.blueIcon:styles.purpleIcon}>{icon}</div><p>{a}<br/>{b}</p></article>)}</div></Panel>
-      <section className={styles.cta} id="audit"><div className={styles.calendar}><div className={styles.binder}/><div className={styles.calendarGrid}>{Array.from({length:9},(_,i)=><i key={i}/>)}</div><span>◷</span></div><div className={styles.ctaCopy}><h2>Ready To Unlock Your <span>Next Level Of Growth?</span></h2><p>Book your free 30-minute Automation Discovery Session and let us show you how Nuvrixa can help you work smarter, reduce costs and build scalable systems.</p><div><span>✓　30 Minutes</span><span>✓　100% Free</span><span>✓　No Obligation</span><span>✓　Built Around Your Business</span></div></div><div className={styles.ctaAction}><a className={styles.auditButton} href="/audit">Book My Free 30-Minute Audit　→</a><p>No credit card required.</p></div></section>
+      <section className={styles.cta} id="audit"><div className={styles.calendar}><div className={styles.binder}/><div className={styles.calendarGrid}>{Array.from({length:9},(_,i)=><i key={i}/>)}</div><span>◷</span></div><div className={styles.ctaCopy}><h2>Ready To Unlock Your <span>Next Level Of Growth?</span></h2><p>Book your free 30-minute Automation Discovery Session and let us show you how Nuvrixa can help you work smarter, reduce costs and build scalable systems.</p><div><span>✓ 30 Minutes</span><span>✓ 100% Free</span><span>✓ No Obligation</span><span>✓ Built Around Your Business</span></div></div><div className={styles.ctaAction}><a className={styles.auditButton} href="/audit">Book My Free 30-Minute Audit →</a><p>No credit card required.</p></div></section>
     </div>
   </main>
 }
